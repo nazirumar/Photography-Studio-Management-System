@@ -1,0 +1,45 @@
+{% extends "portal/base_portal.html" %}
+{% block title %}Payment History - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Payment History</h1>
+        <p class="text-sm text-gray-500 mt-1">All your transactions</p>
+    </div>
+
+    {% if payments %}
+    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-100">
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase">Reference</th>
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase">Date</th>
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase">Invoice</th>
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase">Method</th>
+                        <th class="text-right px-6 py-4 font-semibold text-gray-600 text-xs uppercase">Amount</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for payment in payments %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 font-medium text-gray-900">{{ payment.reference }}</td>
+                        <td class="px-6 py-4 text-gray-600">{{ payment.payment_date }}</td>
+                        <td class="px-6 py-4 text-gray-600">{{ payment.invoice.invoice_number|default:"-" }}</td>
+                        <td class="px-6 py-4 text-gray-600">{{ payment.get_method_display }}</td>
+                        <td class="px-6 py-4 text-right font-semibold text-emerald-600">N{{ payment.amount|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="bg-white rounded-2xl border border-gray-200 p-16 text-center">
+        <svg class="w-12 h-12 text-gray-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+        <h3 class="mt-4 text-lg font-semibold text-gray-900">No Payments Yet</h3>
+        <p class="text-gray-500 mt-2 text-sm">Your payment history will appear here.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

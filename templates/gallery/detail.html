@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}{{ gallery.name }} - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ gallery.name }}</h1>
+            <p class="text-sm text-gray-500">{{ project.reference }} | {{ photos.count }} photos</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{% url 'gallery:list' project_pk=project.pk %}" class="inline-flex items-center gap-2 bg-white text-gray-700 px-5 py-2.5 rounded-xl border border-gray-300 hover:bg-gray-50 transition-all text-sm font-medium">Back</a>
+            <a href="{% url 'gallery_upload:upload' gallery_pk=gallery.pk %}" class="inline-flex items-center gap-2 bg-brand-600 text-white px-5 py-2.5 rounded-xl hover:bg-brand-700 transition-all text-sm font-medium">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                Upload Photos
+            </a>
+        </div>
+    </div>
+
+    {% if gallery.description %}
+    <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+        <p class="text-gray-600 text-sm">{{ gallery.description }}</p>
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        {% for photo in photos %}
+        <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden group relative">
+            <div class="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
+                {% if photo.preview_key %}
+                <img src="/media/{{ photo.preview_key }}" alt="{{ photo.file_name }}" class="w-full h-full object-cover">
+                {% else %}
+                <span class="text-gray-400 text-sm">#{{ photo.image_number }}</span>
+                {% endif %}
+            </div>
+            <div class="px-4 py-2 flex justify-between items-center">
+                <span class="text-xs text-gray-500 truncate max-w-[70%]" title="{{ photo.file_name }}">{{ photo.file_name|truncatechars:15 }}</span>
+                <div class="flex items-center gap-1">
+                    {% if gallery.is_selection %}
+                    <form method="post" action="{% url 'gallery:photo_select' project_pk=project.pk gallery_pk=gallery.pk photo_pk=photo.pk %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="selected" value="{% if photo.is_selected %}false{% else %}true{% endif %}">
+                        <button type="submit" class="text-sm {% if photo.is_selected %}text-yellow-500{% else %}text-gray-400 hover:text-yellow-500{% endif %}">
+                            {% if photo.is_selected %}&#9733;{% else %}&#9734;{% endif %}
+                        </button>
+                    </form>
+                    {% endif %}
+                    <form method="post" action="{% url 'gallery_upload:delete' pk=photo.pk %}" class="inline"
+                          x-data x-confirm="Delete this photo?">
+                        {% csrf_token %}
+                        <button type="submit" class="text-gray-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-12 text-gray-400">
+            <p>No photos uploaded yet</p>
+            <a href="{% url 'gallery_upload:upload' gallery_pk=gallery.pk %}" class="inline-flex items-center gap-2 text-brand-600 hover:text-brand-700 mt-2 text-sm font-medium">Upload photos</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

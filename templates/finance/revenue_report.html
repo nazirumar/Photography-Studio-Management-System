@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Revenue Report - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <h1 class="text-2xl font-bold text-gray-900">Revenue Report</h1>
+    <div class="bg-white rounded-xl border border-gray-200 p-5">
+        <form method="get" class="flex gap-3 items-end">
+            <div><label class="block text-xs text-gray-500 mb-1">From</label><input type="date" name="date_from" value="{{ date_from }}" class="form-input text-sm"></div>
+            <div><label class="block text-xs text-gray-500 mb-1">To</label><input type="date" name="date_to" value="{{ date_to }}" class="form-input text-sm"></div>
+            <button type="submit" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 text-sm">Filter</button>
+        </form>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-5">
+        <p class="text-sm text-gray-500">Total Revenue</p>
+        <p class="text-3xl font-bold text-green-600 mt-1">N{{ summary.total_revenue|floatformat:2 }}</p>
+    </div>
+    {% if summary.by_method %}
+    <div class="bg-white rounded-xl border border-gray-200 p-5">
+        <h2 class="font-semibold text-gray-900 mb-3">By Payment Method</h2>
+        <div class="space-y-2">
+            {% for item in summary.by_method %}
+            <div class="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
+                <span class="text-sm text-gray-700">{{ item.method }}</span>
+                <span class="text-sm font-medium text-gray-900">N{{ item.total|floatformat:2 }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

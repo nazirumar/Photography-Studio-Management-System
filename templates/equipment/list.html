@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Equipment - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Equipment</h1>
+            <p class="text-sm text-gray-500 mt-1">{{ total_count }} total equipment</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{% url 'equipment:maintenance' %}" class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-5 py-2.5 rounded-xl hover:bg-gray-50 transition text-sm font-medium">Maintenance Due</a>
+            <a href="{% url 'equipment:create' %}" class="inline-flex items-center gap-2 bg-brand-600 text-white px-5 py-2.5 rounded-xl hover:bg-brand-700 transition-all text-sm font-medium shadow-sm shadow-brand-600/25">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                Add Equipment
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
+        <form method="get" class="flex flex-col sm:flex-row gap-3">
+            <div class="flex-1 min-w-[200px] relative">
+                <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                {{ form.q }}
+            </div>
+            {{ form.status }}
+            <button type="submit" class="bg-gray-900 text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-800 transition">Search</button>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-100">
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider">Asset #</th>
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider">Name</th>
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider hidden sm:table-cell">Brand</th>
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider">Status</th>
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider hidden md:table-cell">Assigned To</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for eq in equipment %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 font-semibold text-gray-900">{{ eq.asset_number }}</td>
+                        <td class="px-6 py-4">
+                            <a href="{% url 'equipment:detail' pk=eq.pk %}" class="font-semibold text-brand-600 hover:text-brand-700">{{ eq.name }}</a>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600 hidden sm:table-cell">{{ eq.brand|default:"-" }}</td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {% if eq.status == 'available' %}bg-emerald-100 text-emerald-800{% elif eq.status == 'in_use' %}bg-blue-100 text-blue-800{% elif eq.status == 'maintenance' %}bg-amber-100 text-amber-800{% elif eq.status == 'damaged' %}bg-red-100 text-red-800{% else %}bg-gray-100 text-gray-500{% endif %}">
+                                {{ eq.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600 hidden md:table-cell">{{ eq.assigned_to|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-16 text-center">
+                            <svg class="w-12 h-12 text-gray-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <p class="text-gray-500 mt-3 text-sm">No equipment found</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

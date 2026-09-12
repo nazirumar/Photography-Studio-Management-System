@@ -1,0 +1,38 @@
+{% extends "portal/base.html" %}
+{% block title %}Dashboard - Client Portal{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <h1 class="text-2xl font-bold text-gray-900">Welcome, {{ client.first_name }}</h1>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <a href="{% url 'portal:bookings' %}" class="bg-white rounded-2xl border border-gray-200 px-6 py-4 hover:border-brand-300 transition">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">My Bookings</p>
+            <p class="text-3xl font-bold text-brand-600 mt-1">{{ bookings|length }}</p>
+        </a>
+        <a href="{% url 'portal:invoices' %}" class="bg-white rounded-2xl border border-gray-200 px-6 py-4 hover:border-brand-300 transition">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Invoices</p>
+            <p class="text-3xl font-bold text-green-600 mt-1">{{ invoices|length }}</p>
+        </a>
+        <a href="{% url 'portal:galleries' %}" class="bg-white rounded-2xl border border-gray-200 px-6 py-4 hover:border-brand-300 transition">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Galleries</p>
+            <p class="text-3xl font-bold text-purple-600 mt-1">{{ galleries|length }}</p>
+        </a>
+    </div>
+
+    {% if bookings %}
+    <div class="bg-white rounded-2xl border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-100"><h2 class="text-sm font-semibold text-gray-900">Recent Bookings</h2></div>
+        <div class="px-6 py-4 space-y-3">
+            {% for b in bookings %}
+            <div class="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
+                <div>
+                    <p class="text-sm font-medium text-gray-900">{{ b.title|default:b.reference }}</p>
+                    <p class="text-xs text-gray-500">{{ b.date }} - {{ b.get_status_display }}</p>
+                </div>
+                <span class="px-2 py-1 text-xs rounded-full {% if b.status == 'completed' %}bg-green-100 text-green-700{% else %}bg-brand-100 text-brand-700{% endif %}">{{ b.get_status_display }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

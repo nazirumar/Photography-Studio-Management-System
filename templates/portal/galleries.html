@@ -1,0 +1,20 @@
+{% extends "portal/base.html" %}
+{% block title %}My Galleries - Client Portal{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <h1 class="text-2xl font-bold text-gray-900">My Photo Galleries</h1>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for g in galleries %}
+        <a href="{% url 'portal:gallery_detail' pk=g.pk %}" class="bg-white rounded-2xl border border-gray-200 px-6 py-4 hover:border-brand-300 transition">
+            <h3 class="font-semibold text-gray-900">{{ g.title|default:g.project.reference }}</h3>
+            <p class="text-sm text-gray-500 mt-1">{{ g.project.client }}</p>
+            <p class="text-xs text-gray-400 mt-2">{{ g.photo_count|default:0 }} photos</p>
+        </a>
+        {% empty %}
+        <div class="col-span-3 bg-white rounded-2xl border border-gray-200 px-6 py-12 text-center text-gray-400">
+            No galleries yet
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

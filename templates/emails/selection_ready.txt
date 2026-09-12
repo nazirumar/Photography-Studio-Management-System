@@ -1,0 +1,11 @@
+Your Photos Are Ready!
+
+Dear {{ project.client.display_name }},
+
+Your photos from {{ project.reference }} are now ready for selection.
+
+Please log in to the client portal to view and select your favorite images.
+
+Photos Available: {{ project.total_for_selection }}
+
+Thank you for your patience!

@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% block title %}AI FDE - StudioFlow{% endblock %}
+{% block content %}
+<div class="flex h-[calc(100vh-4rem)] -mt-6">
+    {# Sidebar - Conversations #}
+    <div class="w-72 bg-white border-r border-gray-200 flex flex-col hidden lg:flex">
+        <div class="p-4 border-b border-gray-200">
+            <h2 class="text-sm font-semibold text-gray-900">Conversations</h2>
+        </div>
+        <div class="flex-1 overflow-y-auto p-2 space-y-1" id="conversationList">
+            <button onclick="newConversation()" class="w-full text-left px-3 py-2 rounded-xl text-sm text-brand-600 hover:bg-brand-50 transition flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                New Chat
+            </button>
+        </div>
+    </div>
+
+    {# Main Chat Area #}
+    <div class="flex-1 flex flex-col">
+        {# Header #}
+        <div class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-brand-100 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                </div>
+                <div>
+                    <h1 class="text-sm font-semibold text-gray-900">StudioFlow AI FDE</h1>
+                    <p class="text-xs text-gray-500">Forward Deployed Engineer</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-gray-400" id="modelBadge"></span>
+            </div>
+        </div>
+
+        {# Messages #}
+        <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4" id="chatMessages">
+            {# Welcome message #}
+            <div class="flex gap-3 max-w-3xl">
+                <div class="w-8 h-8 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <div class="bg-white rounded-2xl border border-gray-200 px-5 py-4 shadow-sm">
+                    <p class="text-sm text-gray-700">Hello! I'm your StudioFlow AI assistant. I can help you with:</p>
+                    <ul class="mt-2 space-y-1 text-sm text-gray-600">
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-400 rounded-full"></span>Client information and history</li>
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-400 rounded-full"></span>Booking schedules and conflicts</li>
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-400 rounded-full"></span>Project status and timelines</li>
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-400 rounded-full"></span>Financial summaries and reports</li>
+                        <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-400 rounded-full"></span>Inventory and equipment status</li>
+                    </ul>
+                    <p class="mt-3 text-sm text-gray-500">What would you like to know?</p>
+                </div>
+            </div>
+        </div>
+
+        {# Input #}
+        <div class="border-t border-gray-200 bg-white px-6 py-4">
+            <form id="chatForm" onsubmit="sendMessage(event)" class="flex gap-3 max-w-4xl mx-auto">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                <input type="hidden" id="conversationId" value="">
+                <input type="text" id="messageInput" placeholder="Ask about clients, bookings, finances..." 
+                    class="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-300 transition"
+                    autocomplete="off">
+                <button type="submit" id="sendBtn" class="bg-brand-600 text-white px-5 py-3 rounded-xl text-sm font-medium hover:bg-brand-700 transition shadow-sm shadow-brand-600/25 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                    Send
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentConversationId = document.getElementById('conversationId').value;
+
+async function sendMessage(e) {
+    e.preventDefault();
+    const input = document.getElementById('messageInput');
+    const message = input.value.trim();
+    if (!message) return;
+
+    input.value = '';
+    addMessage('user', message);
+
+    const sendBtn = document.getElementById('sendBtn');
+    sendBtn.disabled = true;
+    sendBtn.innerHTML = '<div class="animate-spin w-4 h-4 border-2 border-white border-r-transparent rounded-full"></div> Thinking...';
+
+    try {
+        const res = await fetch('/ai-fde/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                message: message,
+                conversation_id: currentConversationId,
+                current_page: 'ai_fde_chat'
+            })
+        });
+        const data = await res.json();
+        
+        if (data.conversation_id) {
+            currentConversationId = data.conversation_id;
+            document.getElementById('conversationId').value = data.conversation_id;
+        }
+
+        if (data.error) {
+            addMessage('assistant', data.error, true);
+        } else {
+            const response = data.response;
+            if (response.type === 'text') {
+                addMessage('assistant', response.text);
+            } else if (response.type === 'metric_group') {
+                addMetricGroup(response);
+            } else if (response.type === 'table') {
+                addTable(response);
+            } else if (response.type === 'alert') {
+                addAlert(response);
+            } else if (response.type === 'booking_card') {
+                addBookingCard(response);
+            } else if (response.type === 'client_card') {
+                addClientCard(response);
+            } else if (response.type === 'project_card') {
+                addProjectCard(response);
+            } else if (response.type === 'invoice_card') {
+                addInvoiceCard(response);
+            } else {
+                addMessage('assistant', response.text || JSON.stringify(response));
+            }
+        }
+    } catch(err) {
+        addMessage('assistant', 'Network error. Please try again.', true);
+    } finally {
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg> Send';
+    }
+}
+
+function addMessage(role, text, isError = false) {
+    const container = document.getElementById('chatMessages');
+    const isUser = role === 'user';
+    const wrapper = document.createElement('div');
+    wrapper.className = 'flex gap-3 max-w-3xl ' + (isUser ? 'flex-row-reverse' : '');
+    
+    const avatar = isUser 
+        ? '<div class="w-8 h-8 bg-gray-200 rounded-xl flex items-center justify-center flex-shrink-0 mt-1"><span class="text-sm font-medium text-gray-600">U</span></div>'
+        : '<div class="w-8 h-8 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-1"><svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>';
+    
+    const bg = isUser ? 'bg-brand-600 text-white' : (isError ? 'bg-red-50 border border-red-200 text-red-700' : 'bg-white border border-gray-200 text-gray-700');
+    
+    wrapper.innerHTML = avatar + '<div class="' + bg + ' rounded-2xl px-5 py-3 shadow-sm max-w-2xl"><p class="text-sm whitespace-pre-wrap">' + escapeHtml(text) + '</p></div>';
+    container.appendChild(wrapper);
+    container.scrollTop = container.scrollHeight;
+}
+
+function addMetricGroup(data) {
+    const container = document.getElementById('chatMessages');
+    const wrapper = document.createElement('div');
+    wrapper.className = 'flex gap-3 max-w-3xl';
+    
+    let metricsHtml = '';
+    if (data.metrics) {
+        data.metrics.forEach(m => {
+            metricsHtml += '<div class="bg-gray-50 rounded-xl p-3 text-center"><p class="text-xs text-gray-500">' + escapeHtml(m.label) + '</p><p class="text-lg font-bold text-gray-900">' + escapeHtml(String(m.value)) + '</p>' + (m.change ? '<p class="text-xs text-emerald-600">' + escapeHtml(m.change) + '</p>' : '') + '</div>';
+        });
+    }
+    
+    wrapper.innerHTML = '<div class="w-8 h-8 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-1"><svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div><div class="bg-white border border-gray-200 rounded-2xl px-5 py-4 shadow-sm"><p class="text-sm font-medium text-gray-900 mb-3">' + escapeHtml(data.title || '') + '</p><div class="grid grid-cols-2 sm:grid-cols-4 gap-3">' + metricsHtml + '</div></div>';
+    container.appendChild(wrapper);
+    container.scrollTop = container.scrollHeight;
+}
+
+function addTable(data) {
+    const container = document.getElementById('chatMessages');
+    const wrapper = document.createElement('div');
+    wrapper.className = 'flex gap-3 max-w-3xl';
+    
+    let tableHtml = '<table class="w-full text-sm"><thead><tr>';
+    if (data.headers) data.headers.forEach(h => { tableHtml += '<th class="text-left px-3 py-2 text-xs font-medium text-gray-500 uppercase">' + escapeHtml(h) + '</th>'; });
+    tableHtml += '</tr></thead><tbody>';
+    if (data.rows) data.rows.forEach(row => {
+        tableHtml += '<tr class="border-t border-gray-100">';
+        row.forEach(cell => { tableHtml += '<td class="px-3 py-2 text-gray-700">' + escapeHtml(String(cell)) + '</td>'; });
+        tableHtml += '</tr>';
+    });
+    tableHtml += '</tbody></table>';
+    
+    wrapper.innerHTML = '<div class="w-8 h-8 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-1"><svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div><div class="bg-white border border-gray-200 rounded-2xl px-5 py-4 shadow-sm overflow-x-auto max-w-2xl"><p class="text-sm font-medium text-gray-900 mb-3">' + escapeHtml(data.title || '') + '</p>' + tableHtml + '</div>';
+    container.appendChild(wrapper);
+    container.scrollTop = container.scrollHeight;
+}
+
+function addAlert(data) {
+    const colors = { info: 'bg-blue-50 border-blue-200 text-blue-700', warning: 'bg-amber-50 border-amber-200 text-amber-700', error: 'bg-red-50 border-red-200 text-red-700' };
+    addMessage('assistant', (data.severity === 'warning' ? '⚠️ ' : data.severity === 'error' ? '🚨 ' : 'ℹ️ ') + data.message);
+}
+
+function addBookingCard(data) {
+    addMessage('assistant', '📋 Booking: ' + data.reference + ' | ' + data.client + ' | ' + data.date + ' | ' + data.status + ' | ₦' + data.amount);
+}
+
+function addClientCard(data) {
+    addMessage('assistant', '👤 Client: ' + data.name + (data.phone ? ' | ' + data.phone : '') + (data.email ? ' | ' + data.email : '') + (data.outstanding_balance ? ' | Balance: ₦' + data.outstanding_balance : ''));
+}
+
+function addProjectCard(data) {
+    addMessage('assistant', '📁 Project: ' + data.reference + ' | ' + data.status + ' | Priority: ' + data.priority + (data.progress_pct != null ? ' | Progress: ' + data.progress_pct + '%' : ''));
+}
+
+function addInvoiceCard(data) {
+    addMessage('assistant', '🧾 Invoice: ' + data.number + ' | ₦' + data.amount + ' | Balance: ₦' + data.balance + ' | ' + data.status);
+}
+
+function newConversation() {
+    currentConversationId = '';
+    document.getElementById('conversationId').value = '';
+    const container = document.getElementById('chatMessages');
+    container.innerHTML = '';
+    addMessage('assistant', 'Hello! How can I help you today?');
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Lead Report - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-900">Lead Report</h1>
+        <a href="{% url 'reports:dashboard' %}" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-200">Back to Reports</a>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <p class="text-sm text-gray-500">Total Leads</p>
+            <p class="text-3xl font-bold text-indigo-600">{{ total_leads }}</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <p class="text-sm text-gray-500">Converted</p>
+            <p class="text-3xl font-bold text-green-600">{{ converted }}</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <p class="text-sm text-gray-500">Conversion Rate</p>
+            <p class="text-3xl font-bold text-indigo-600">{{ conversion_rate }}%</p>
+        </div>
+    </div>
+    {% if by_source %}
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h2 class="font-semibold text-gray-900 mb-4">By Source</h2>
+        <div class="space-y-3">
+            {% for s in by_source %}
+            <div class="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
+                <span class="text-sm text-gray-700">{{ s.source|default:"Unknown" }}</span>
+                <span class="text-sm font-medium">{{ s.count }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

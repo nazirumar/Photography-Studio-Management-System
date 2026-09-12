@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Dashboard - StudioFlow{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Page header -->
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <p class="text-sm text-gray-500 mt-1">Welcome back, {{ user.get_full_name|default:user.email }}. Here's what's happening today.</p>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <!-- Revenue -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:shadow-brand-500/5 transition-all duration-300 group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Monthly Revenue</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-2">₦{{ monthly_revenue|intcomma }}</p>
+                </div>
+                <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center group-hover:bg-emerald-200 transition">
+                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-emerald-600 font-medium">Active</span>
+            </div>
+        </div>
+
+        <!-- Expenses -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:shadow-red-500/5 transition-all duration-300 group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Monthly Expenses</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-2">₦{{ monthly_expenses|intcomma }}</p>
+                </div>
+                <div class="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center group-hover:bg-red-200 transition">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-gray-500">This month</span>
+            </div>
+        </div>
+
+        <!-- Bookings -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:shadow-brand-500/5 transition-all duration-300 group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Bookings This Month</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-2">{{ total_bookings }}</p>
+                </div>
+                <div class="w-12 h-12 bg-brand-100 rounded-2xl flex items-center justify-center group-hover:bg-brand-200 transition">
+                    <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-brand-600 font-medium">{{ upcoming_bookings|length }} upcoming</span>
+            </div>
+        </div>
+
+        <!-- Clients -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:shadow-brand-500/5 transition-all duration-300 group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Total Clients</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-2">{{ total_clients }}</p>
+                </div>
+                <div class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center group-hover:bg-amber-200 transition">
+                    <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center text-sm">
+                <span class="text-amber-600 font-medium">{{ new_leads }} new leads</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl border border-gray-200 p-6">
+            <h3 class="text-sm font-semibold text-gray-900 mb-4">Revenue (Last 6 Months)</h3>
+            <canvas id="revenueChart" height="200"></canvas>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 p-6">
+            <h3 class="text-sm font-semibold text-gray-900 mb-4">Bookings (Last 6 Months)</h3>
+            <canvas id="bookingsChart" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- Two-column layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Upcoming bookings - takes 2 cols -->
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-900">Upcoming Bookings</h2>
+                <a href="{% url 'bookings:list' %}" class="text-sm font-medium text-brand-600 hover:text-brand-700 transition">View all</a>
+            </div>
+            {% if upcoming_bookings %}
+            <div class="divide-y divide-gray-100">
+                {% for booking in upcoming_bookings %}
+                <div class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-brand-100 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900">{{ booking.client.get_full_name|default:booking.client.email }}</p>
+                            <p class="text-xs text-gray-500 mt-0.5">{{ booking.package.name }} &middot; {{ booking.date|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                        {% if booking.get_status_display == 'Confirmed' %}bg-emerald-100 text-emerald-800
+                        {% elif booking.get_status_display == 'Deposit Paid' %}bg-amber-100 text-amber-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ booking.get_status_display }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="px-6 py-12 text-center">
+                <svg class="w-12 h-12 text-gray-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <p class="text-gray-500 mt-3 text-sm">No upcoming bookings</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Quick Stats sidebar -->
+        <div class="space-y-6">
+            <!-- Outstanding Invoices -->
+            <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                <h3 class="text-sm font-semibold text-gray-900 mb-4">Outstanding Invoices</h3>
+                {% if outstanding_invoices %}
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-gray-900">{{ outstanding_invoices }}</p>
+                        <p class="text-xs text-gray-500">Pending payment</p>
+                    </div>
+                </div>
+                <a href="{% url 'finance:invoice_list' %}" class="mt-4 block text-center text-sm font-medium text-brand-600 hover:text-brand-700 transition">View invoices</a>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-2xl font-bold text-emerald-600">0</p>
+                    <p class="text-xs text-gray-500 mt-1">All clear!</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- New Leads -->
+            <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                <h3 class="text-sm font-semibold text-gray-900 mb-4">New Leads</h3>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-gray-900">{{ new_leads }}</p>
+                        <p class="text-xs text-gray-500">Awaiting follow-up</p>
+                    </div>
+                </div>
+                <a href="{% url 'leads:list' %}" class="mt-4 block text-center text-sm font-medium text-brand-600 hover:text-brand-700 transition">View leads</a>
+            </div>
+
+            <!-- Notifications -->
+            {% if unread_notifications %}
+            <div class="bg-brand-50 rounded-2xl border border-brand-200 p-6">
+                <h3 class="text-sm font-semibold text-brand-900 mb-2">Notifications</h3>
+                <p class="text-brand-700 text-sm">You have <span class="font-bold">{{ unread_notifications }}</span> unread notification{{ unread_notifications|pluralize }}</p>
+                <a href="{% url 'notifications:list' %}" class="mt-3 inline-block text-sm font-medium text-brand-600 hover:text-brand-700 transition">View all</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const revenueData = {{ revenue_chart_data|safe }};
+const bookingsData = {{ bookings_chart_data|safe }};
+
+new Chart(document.getElementById('revenueChart'), {
+    type: 'bar',
+    data: {
+        labels: revenueData.map(d => d.month),
+        datasets: [{
+            label: 'Revenue',
+            data: revenueData.map(d => d.amount),
+            backgroundColor: 'rgba(99,102,241,0.8)',
+            borderRadius: 8,
+            borderSkipped: false,
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => '₦' + v.toLocaleString() } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+new Chart(document.getElementById('bookingsChart'), {
+    type: 'line',
+    data: {
+        labels: bookingsData.map(d => d.month),
+        datasets: [{
+            label: 'Bookings',
+            data: bookingsData.map(d => d.count),
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16,185,129,0.1)',
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#10b981',
+            pointRadius: 5,
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { stepSize: 1 } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+</script>
+{% endblock %}

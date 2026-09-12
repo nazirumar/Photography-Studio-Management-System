@@ -1,0 +1,16 @@
+Invoice {{ invoice.invoice_number }}
+
+Dear {{ invoice.client.display_name }},
+
+Please find your invoice details below:
+
+Invoice Number: {{ invoice.invoice_number }}
+Issue Date: {{ invoice.issue_date }}
+Due Date: {{ invoice.due_date|default:"N/A" }}
+Total: N{{ invoice.total|floatformat:2 }}
+Amount Paid: N{{ invoice.amount_paid|floatformat:2 }}
+Balance Due: N{{ invoice.balance|floatformat:2 }}
+
+{% if invoice.notes %}{{ invoice.notes }}{% endif %}
+
+{{ studio.name }}

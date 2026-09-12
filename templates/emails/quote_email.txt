@@ -1,0 +1,13 @@
+Quote/Proposal
+
+Dear {{ quote.client.display_name }},
+
+Please find your quote details below:
+
+Package: {{ quote.package.name|default:"Custom Package" }}
+Event Date: {{ quote.event_date|default:"TBD" }}
+Total: N{{ quote.total|floatformat:2 }}
+
+{% if quote.notes %}{{ quote.notes }}{% endif %}
+
+{{ studio.name }}

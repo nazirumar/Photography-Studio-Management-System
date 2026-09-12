@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}{{ project.reference }} - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ project.reference }}</h1>
+            <p class="text-sm text-gray-500">{{ project.client.display_name }}</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{% url 'projects:edit' pk=project.pk %}" class="inline-flex items-center gap-2 bg-white text-gray-700 px-5 py-2.5 rounded-xl border border-gray-300 hover:bg-gray-50 transition-all text-sm font-medium">Edit</a>
+            <a href="{% url 'gallery:list' project_pk=project.pk %}" class="inline-flex items-center gap-2 bg-white text-gray-700 px-5 py-2.5 rounded-xl border border-gray-300 hover:bg-gray-50 transition-all text-sm font-medium">Gallery</a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</p>
+            <p class="text-gray-900 font-medium mt-1">{{ project.get_status_display }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Priority</p>
+            <p class="text-gray-900 font-medium mt-1">{{ project.get_priority_display }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Shoot Date</p>
+            <p class="text-gray-900 font-medium mt-1">{{ project.shoot_date|date:"d M Y"|default:"-" }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Expected Delivery</p>
+            <p class="text-gray-900 font-medium mt-1">{{ project.expected_delivery|date:"d M Y"|default:"-" }}</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Captured</p>
+            <p class="text-2xl font-bold text-gray-900 mt-1">{{ project.total_captured }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Selected</p>
+            <p class="text-2xl font-bold text-brand-600 mt-1">{{ project.selected_count }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Edited</p>
+            <p class="text-2xl font-bold text-green-600 mt-1">{{ project.edited_count }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Printed</p>
+            <p class="text-2xl font-bold text-blue-600 mt-1">{{ project.printed_count }}</p>
+        </div>
+    </div>
+
+    <!-- Status Actions -->
+    <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+        <h2 class="text-sm font-semibold text-gray-900 mb-3">Update Status</h2>
+        <div class="flex flex-wrap gap-2">
+            {% if project.status == 'scheduled' %}
+            <form method="post" action="{% url 'projects:status' pk=project.pk %}">{% csrf_token %}<input type="hidden" name="status" value="shoot_completed"><button class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm hover:bg-green-700 transition-all">Shoot Completed</button></form>
+            {% elif project.status == 'shoot_completed' %}
+            <form method="post" action="{% url 'projects:status' pk=project.pk %}">{% csrf_token %}<input type="hidden" name="status" value="files_imported"><button class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm hover:bg-green-700 transition-all">Files Imported</button></form>
+            {% elif project.status == 'files_imported' %}
+            <form method="post" action="{% url 'projects:status' pk=project.pk %}">{% csrf_token %}<input type="hidden" name="status" value="awaiting_selection"><button class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm hover:bg-green-700 transition-all">Await Selection</button></form>
+            {% elif project.status == 'selection_received' %}
+            <form method="post" action="{% url 'projects:status' pk=project.pk %}">{% csrf_token %}<input type="hidden" name="status" value="editing"><button class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm hover:bg-green-700 transition-all">Start Editing</button></form>
+            {% elif project.status == 'editing' %}
+            <form method="post" action="{% url 'projects:status' pk=project.pk %}">{% csrf_token %}<input type="hidden" name="status" value="editing_review"><button class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm hover:bg-green-700 transition-all">Submit Review</button></form>
+            {% elif project.status == 'editing_review' %}
+            <form method="post" action="{% url 'projects:status' pk=project.pk %}">{% csrf_token %}<input type="hidden" name="status" value="ready_for_print"><button class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm hover:bg-green-700 transition-all">Ready for Print</button></form>
+            {% elif project.status == 'ready_for_print' %}
+            <form method="post" action="{% url 'projects:status' pk=project.pk %}">{% csrf_token %}<input type="hidden" name="status" value="printing"><button class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm hover:bg-green-700 transition-all">Start Printing</button></form>
+            {% elif project.status == 'printing' %}
+            <form method="post" action="{% url 'projects:status' pk=project.pk %}">{% csrf_token %}<input type="hidden" name="status" value="quality_control"><button class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm hover:bg-green-700 transition-all">Quality Check</button></form>
+            {% elif project.status == 'quality_control' %}
+            <form method="post" action="{% url 'projects:status' pk=project.pk %}">{% csrf_token %}<input type="hidden" name="status" value="ready_for_delivery"><button class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm hover:bg-green-700 transition-all">Ready for Delivery</button></form>
+            {% elif project.status == 'ready_for_delivery' %}
+            <form method="post" action="{% url 'projects:status' pk=project.pk %}">{% csrf_token %}<input type="hidden" name="status" value="delivered"><button class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm hover:bg-green-700 transition-all">Mark Delivered</button></form>
+            {% elif project.status == 'delivered' %}
+            <form method="post" action="{% url 'projects:status' pk=project.pk %}">{% csrf_token %}<input type="hidden" name="status" value="completed"><button class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm hover:bg-green-700 transition-all">Complete</button></form>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tasks -->
+    <div class="bg-white rounded-2xl border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+            <h2 class="text-sm font-semibold text-gray-900">Tasks</h2>
+        </div>
+        <div class="px-6 py-4">
+            <form method="post" action="{% url 'projects:task_create' pk=project.pk %}" class="flex gap-2 mb-4">
+                {% csrf_token %}
+                <input type="text" name="title" required class="flex-1 px-4 py-2.5 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:bg-white transition" placeholder="Add a task...">
+                <button type="submit" class="inline-flex items-center gap-2 bg-brand-600 text-white px-5 py-2.5 rounded-xl hover:bg-brand-700 transition-all text-sm font-medium">Add</button>
+            </form>
+            <div class="space-y-2">
+                {% for task in tasks %}
+                <div class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                    <div class="flex items-center gap-3">
+                        <span class="px-2 py-1 text-xs rounded-full {% if task.status == 'done' %}bg-green-100 text-green-700{% elif task.status == 'in_progress' %}bg-blue-100 text-blue-700{% elif task.status == 'blocked' %}bg-red-100 text-red-700{% else %}bg-gray-100 text-gray-500{% endif %}">
+                            {{ task.get_status_display }}
+                        </span>
+                        <span class="text-sm {% if task.status == 'done' %}line-through text-gray-400{% else %}text-gray-900{% endif %}">{{ task.title }}</span>
+                    </div>
+                    <div class="flex gap-1">
+                        {% if task.status != 'done' %}
+                        <form method="post" action="{% url 'projects:task_status' pk=project.pk task_pk=task.pk %}">{% csrf_token %}<input type="hidden" name="status" value="done"><button class="text-xs text-green-600 hover:text-green-800">Done</button></form>
+                        {% if task.status == 'todo' %}
+                        <form method="post" action="{% url 'projects:task_status' pk=project.pk task_pk=task.pk %}">{% csrf_token %}<input type="hidden" name="status" value="in_progress"><button class="text-xs text-blue-600 hover:text-blue-800">Start</button></form>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-gray-400 text-sm text-center py-4">No tasks yet</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Galleries -->
+    <div class="bg-white rounded-2xl border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+            <h2 class="text-sm font-semibold text-gray-900">Galleries</h2>
+            <a href="{% url 'gallery:create' project_pk=project.pk %}" class="text-sm text-brand-600 hover:text-brand-700">+ Add Gallery</a>
+        </div>
+        <div class="px-6 py-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for gallery in galleries %}
+                <a href="{% url 'gallery:detail' project_pk=project.pk pk=gallery.pk %}" class="border border-gray-200 rounded-2xl px-6 py-4 hover:border-brand-300 transition-colors">
+                    <p class="font-medium text-gray-900">{{ gallery.name }}</p>
+                    <p class="text-sm text-gray-500 mt-1">{{ gallery.photos.count }} photos</p>
+                </a>
+                {% empty %}
+                <p class="text-gray-400 text-sm text-center py-4 col-span-2">No galleries</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

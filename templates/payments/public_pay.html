@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay - {{ link.reference }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe', 300: '#a5b4fc', 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full bg-gray-50 flex items-center justify-center">
+    <div class="w-full max-w-md p-6">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-900">Make Payment</h1>
+            <p class="text-sm text-gray-500 mt-1">Secure payment powered by Paystack</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 p-8">
+            <div class="space-y-4 mb-6">
+                <div class="flex justify-between"><span class="text-sm text-gray-500">Client</span><span class="text-sm font-semibold">{{ link.client.display_name }}</span></div>
+                <div class="flex justify-between"><span class="text-sm text-gray-500">Description</span><span class="text-sm text-gray-700">{{ link.description|default:"Payment" }}</span></div>
+                <div class="flex justify-between border-t pt-4"><span class="text-sm font-semibold text-gray-900">Amount</span><span class="text-lg font-bold text-brand-600">N{{ link.amount|floatformat:2 }}</span></div>
+            </div>
+            {% if error %}
+            <div class="bg-red-50 text-red-700 text-sm px-4 py-3 rounded-xl mb-4" id="errorBox">{{ error }}</div>
+            {% endif %}
+            <div id="loadingBox" class="hidden text-center py-4">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-brand-500 border-r-transparent"></div>
+                <p class="text-sm text-gray-500 mt-2">Initializing payment...</p>
+            </div>
+            <form method="post" id="payForm">
+                {% csrf_token %}
+                <input type="hidden" name="email" value="{{ link.client.email }}">
+                <button type="submit" id="payBtn" class="w-full bg-brand-600 text-white py-3 rounded-xl font-medium hover:bg-brand-700 transition shadow-sm shadow-brand-600/25">
+                    Pay N{{ link.amount|floatformat:2 }}
+                </button>
+            </form>
+            <p class="text-center text-xs text-gray-400 mt-4">Secured by Paystack</p>
+        </div>
+    </div>
+    <script>
+        const publicKey = "{{ paystack_public_key|default:'' }}";
+        const amount = {{ link.amount }};
+        const email = "{{ link.client.email }}";
+        const reference = "{{ link.reference }}";
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const callbackUrl = window.location.origin + "/payments/verify/" + reference + "/";
+
+        document.getElementById("payForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            if (!publicKey) {
+                document.getElementById("errorBox")?.classList.remove("hidden");
+                return;
+            }
+            document.getElementById("payBtn").classList.add("hidden");
+            document.getElementById("loadingBox").classList.remove("hidden");
+
+            const handler = PaystackPop.setup({
+                key: publicKey,
+                email: email,
+                amount: Math.round(amount * 100),
+                currency: "NGN",
+                ref: reference,
+                callback: function(response) {
+                    window.location.href = callbackUrl + "?trxref=" + response.trxref;
+                },
+                onClose: function() {
+                    document.getElementById("payBtn").classList.remove("hidden");
+                    document.getElementById("loadingBox").classList.add("hidden");
+                }
+            });
+            handler.openIframe();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Expenses - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Expenses</h1>
+            <p class="text-sm text-gray-500 mt-1">{{ total_count }} total expense{{ total_count|pluralize }}</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{% url 'expenses:summary' %}" class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-5 py-2.5 rounded-xl hover:bg-gray-50 transition text-sm font-medium">Summary</a>
+            <a href="{% url 'expenses:create' %}" class="inline-flex items-center gap-2 bg-brand-600 text-white px-5 py-2.5 rounded-xl hover:bg-brand-700 transition-all text-sm font-medium shadow-sm shadow-brand-600/25">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                New Expense
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
+        <form method="get" class="flex flex-col sm:flex-row gap-3 flex-wrap">
+            <div class="flex-1 min-w-[200px] relative">
+                <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                {{ form.q }}
+            </div>
+            {{ form.category }}
+            {{ form.date_from }}
+            {{ form.date_to }}
+            <button type="submit" class="bg-gray-900 text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-800 transition">Search</button>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-100">
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider">Ref</th>
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider">Description</th>
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider hidden sm:table-cell">Category</th>
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider">Amount</th>
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider hidden md:table-cell">Date</th>
+                        <th class="text-right px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for exp in expenses %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 font-semibold text-gray-900">{{ exp.reference }}</td>
+                        <td class="px-6 py-4 text-gray-600">{{ exp.description|truncatewords:8 }}</td>
+                        <td class="px-6 py-4 text-gray-600 hidden sm:table-cell">{{ exp.category|default:"-" }}</td>
+                        <td class="px-6 py-4 font-semibold text-red-600">N{{ exp.amount|floatformat:2 }}</td>
+                        <td class="px-6 py-4 text-gray-500 hidden md:table-cell">{{ exp.date|date:"d M Y" }}</td>
+                        <td class="px-6 py-4 text-right">
+                            <a href="{% url 'expenses:edit' pk=exp.pk %}" class="text-gray-400 hover:text-brand-600 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-16 text-center">
+                            <svg class="w-12 h-12 text-gray-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/></svg>
+                            <p class="text-gray-500 mt-3 text-sm">No expenses found</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

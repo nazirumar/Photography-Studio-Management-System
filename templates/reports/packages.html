@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Package Report - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-900">Package Report</h1>
+        <a href="{% url 'reports:dashboard' %}" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-200">Back to Reports</a>
+    </div>
+    {% if popular_packages %}
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h2 class="font-semibold text-gray-900 mb-4">Most Popular Packages</h2>
+        <div class="space-y-3">
+            {% for p in popular_packages %}
+            <div class="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
+                <div>
+                    <span class="text-sm font-medium text-gray-900">{{ p.name }}</span>
+                    <span class="text-sm text-gray-500 ml-2">₦{{ p.base_price|floatformat:2 }}</span>
+                </div>
+                <span class="text-sm font-medium">{{ p.booking_count }} bookings</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="bg-white rounded-xl border border-gray-200 p-6 text-center">
+        <p class="text-gray-400">No active packages</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

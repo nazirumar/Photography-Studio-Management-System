@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}{{ client.display_name }} - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ client.display_name }}</h1>
+            <p class="text-sm text-gray-500">{{ client.client_number }}</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{% url 'clients:edit' pk=client.pk %}" class="inline-flex items-center gap-2 bg-white text-gray-700 px-5 py-2.5 rounded-xl border border-gray-300 hover:bg-gray-50 transition-all text-sm font-medium">Edit</a>
+            <a href="{% url 'clients:archive' pk=client.pk %}" class="inline-flex items-center gap-2 bg-white text-red-600 px-5 py-2.5 rounded-xl border border-red-300 hover:bg-red-50 transition-all text-sm font-medium">Archive</a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Phone</p>
+            <p class="text-gray-900 font-medium mt-1">{{ client.phone|default:"-" }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</p>
+            <p class="text-gray-900 font-medium mt-1">{{ client.email|default:"-" }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">WhatsApp</p>
+            <p class="text-gray-900 font-medium mt-1">{{ client.whatsapp|default:"-" }}</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Lifetime Value</p>
+            <p class="text-2xl font-bold text-gray-900 mt-1">N{{ lifetime_value|floatformat:2 }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Outstanding Balance</p>
+            <p class="text-2xl font-bold {% if balance > 0 %}text-red-600{% else %}text-green-600{% endif %} mt-1">N{{ balance|floatformat:2 }}</p>
+        </div>
+    </div>
+
+    {% if client.address %}
+    <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Address</p>
+        <p class="text-gray-900 font-medium mt-1">{{ client.address }}{% if client.city %}, {{ client.city }}{% endif %}{% if client.state %}, {{ client.state }}{% endif %}</p>
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h2 class="text-sm font-semibold text-gray-900">Bookings</h2>
+            </div>
+            <div class="px-6 py-4">
+                {% for booking in bookings %}
+                <div class="flex justify-between items-center py-2 {% if not forloop.last %}border-b border-gray-50{% endif %}">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">{{ booking.reference }}</p>
+                        <p class="text-xs text-gray-500">{{ booking.date|date:"d M Y" }}</p>
+                    </div>
+                    <span class="px-2 py-1 text-xs rounded-full {% if booking.status == 'confirmed' %}bg-green-100 text-green-700{% elif booking.status == 'completed' %}bg-blue-100 text-blue-700{% else %}bg-gray-100 text-gray-500{% endif %}">
+                        {{ booking.get_status_display }}
+                    </span>
+                </div>
+                {% empty %}
+                <p class="text-gray-400 text-sm text-center py-4">No bookings</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h2 class="text-sm font-semibold text-gray-900">Invoices</h2>
+            </div>
+            <div class="px-6 py-4">
+                {% for invoice in invoices %}
+                <div class="flex justify-between items-center py-2 {% if not forloop.last %}border-b border-gray-50{% endif %}">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">{{ invoice.invoice_number }}</p>
+                        <p class="text-xs text-gray-500">N{{ invoice.total|floatformat:2 }}</p>
+                    </div>
+                    <span class="px-2 py-1 text-xs rounded-full {% if invoice.status == 'paid' %}bg-green-100 text-green-700{% elif invoice.status == 'partial' %}bg-yellow-100 text-yellow-700{% else %}bg-gray-100 text-gray-500{% endif %}">
+                        {{ invoice.get_status_display }}
+                    </span>
+                </div>
+                {% empty %}
+                <p class="text-gray-400 text-sm text-center py-4">No invoices</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {% if client.notes %}
+    <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+        <h2 class="text-sm font-semibold text-gray-900 mb-2">Notes</h2>
+        <p class="text-gray-600 text-sm whitespace-pre-wrap">{{ client.notes }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

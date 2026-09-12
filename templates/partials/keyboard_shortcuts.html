@@ -1,0 +1,135 @@
+{# Keyboard shortcuts modal #}
+{# Add to base.html: {% include "partials/keyboard_shortcuts.html" %} #}
+
+<div x-data="shortcuts()" x-init="init()" class="fixed inset-0 z-50" x-show="showShortcuts" x-cloak>
+    <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm" @click="showShortcuts = false"></div>
+    <div class="fixed inset-0 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6" @click.stop>
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-bold text-gray-900">Keyboard Shortcuts</h2>
+                <button @click="showShortcuts = false" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span class="text-sm text-gray-600">Search</span>
+                    <div class="flex gap-1">
+                        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs font-mono">Ctrl</kbd>
+                        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs font-mono">K</kbd>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span class="text-sm text-gray-600">New Booking</span>
+                    <div class="flex gap-1">
+                        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs font-mono">Ctrl</kbd>
+                        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs font-mono">N</kbd>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span class="text-sm text-gray-600">New Client</span>
+                    <div class="flex gap-1">
+                        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs font-mono">Ctrl</kbd>
+                        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs font-mono">Shift</kbd>
+                        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs font-mono">N</kbd>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span class="text-sm text-gray-600">Dashboard</span>
+                    <div class="flex gap-1">
+                        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs font-mono">Ctrl</kbd>
+                        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs font-mono">H</kbd>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span class="text-sm text-gray-600">Bookings</span>
+                    <div class="flex gap-1">
+                        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs font-mono">Ctrl</kbd>
+                        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs font-mono">B</kbd>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span class="text-sm text-gray-600">Invoices</span>
+                    <div class="flex gap-1">
+                        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs font-mono">Ctrl</kbd>
+                        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs font-mono">I</kbd>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span class="text-sm text-gray-600">Calendar</span>
+                    <div class="flex gap-1">
+                        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs font-mono">Ctrl</kbd>
+                        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs font-mono">L</kbd>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                    <span class="text-sm text-gray-600">Show Shortcuts</span>
+                    <div class="flex gap-1">
+                        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs font-mono">?</kbd>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between py-2">
+                    <span class="text-sm text-gray-600">Close Modal</span>
+                    <div class="flex gap-1">
+                        <kbd class="px-2 py-1 bg-gray-100 rounded text-xs font-mono">Esc</kbd>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function shortcuts() {
+    return {
+        showShortcuts: false,
+        init() {
+            document.addEventListener('keydown', (e) => {
+                // ? - Show shortcuts
+                if (e.key === '?' && !e.target.matches('input, textarea, select')) {
+                    e.preventDefault();
+                    this.showShortcuts = !this.showShortcuts;
+                }
+                // Esc - Close modals
+                if (e.key === 'Escape') {
+                    this.showShortcuts = false;
+                }
+                // Ctrl+K - Search
+                if (e.ctrlKey && e.key === 'k') {
+                    e.preventDefault();
+                    document.querySelector('[placeholder*="Search"]')?.focus();
+                }
+                // Ctrl+N - New booking
+                if (e.ctrlKey && e.shiftKey && e.key === 'N') {
+                    e.preventDefault();
+                    window.location.href = '/clients/add/';
+                }
+                if (e.ctrlKey && !e.shiftKey && e.key === 'N') {
+                    e.preventDefault();
+                    window.location.href = '/bookings/add/';
+                }
+                // Ctrl+H - Dashboard
+                if (e.ctrlKey && e.key === 'h') {
+                    e.preventDefault();
+                    window.location.href = '/';
+                }
+                // Ctrl+B - Bookings
+                if (e.ctrlKey && e.key === 'b') {
+                    e.preventDefault();
+                    window.location.href = '/bookings/';
+                }
+                // Ctrl+I - Invoices
+                if (e.ctrlKey && e.key === 'i') {
+                    e.preventDefault();
+                    window.location.href = '/finance/';
+                }
+                // Ctrl+L - Calendar
+                if (e.ctrlKey && e.key === 'l') {
+                    e.preventDefault();
+                    window.location.href = '/calendar/';
+                }
+            });
+        }
+    };
+}
+</script>

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Entity History - StudioFlow{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-900">History: {{ entity_type }}</h1>
+        <a href="{% url 'audit:list' %}" class="bg-gray-100 text-gray-700 px-5 py-2.5 rounded-xl text-sm hover:bg-gray-200">Back to List</a>
+    </div>
+    <p class="text-sm text-gray-500">Entity ID: {{ entity_id }}</p>
+    <div class="bg-white rounded-2xl border border-gray-200">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Time</th>
+                        <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">User</th>
+                        <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
+                        <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Changes</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for log in logs %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-3 text-gray-500">{{ log.timestamp|date:"M d, H:i" }}</td>
+                        <td class="px-6 py-3 text-gray-900">{{ log.user.get_full_name|default:log.user.email }}</td>
+                        <td class="px-6 py-3"><span class="px-2 py-1 text-xs rounded-full bg-brand-100 text-brand-700">{{ log.action }}</span></td>
+                        <td class="px-6 py-3 text-xs text-gray-600">
+                            {% if log.before_values %}Before: {{ log.before_values|truncatechars:80 }}{% endif %}
+                            {% if log.after_values %} → After: {{ log.after_values|truncatechars:80 }}{% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="px-6 py-12 text-center text-gray-400">No history</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

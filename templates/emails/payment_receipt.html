@@ -1,0 +1,18 @@
+{% extends "emails/base.html" %}
+{% block content %}
+<h2>Payment Receipt</h2>
+<p>Dear {{ payment.client.first_name }},</p>
+<p>We have received your payment.</p>
+<table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+    <tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><strong>Reference:</strong></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">{{ payment.reference }}</td></tr>
+    <tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><strong>Amount:</strong></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">₦{{ payment.amount }}</td></tr>
+    <tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><strong>Method:</strong></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">{{ payment.get_method_display }}</td></tr>
+    <tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><strong>Date:</strong></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">{{ payment.payment_date }}</td></tr>
+    {% if payment.invoice %}
+    <tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><strong>Invoice:</strong></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">{{ payment.invoice.invoice_number }}</td></tr>
+    <tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><strong>Balance:</strong></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">₦{{ payment.invoice.balance }}</td></tr>
+    {% endif %}
+</table>
+<p>Thank you for your payment!</p>
+<p>Best regards,<br>StudioFlow Team</p>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Client Report - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-900">Client Report</h1>
+        <a href="{% url 'reports:dashboard' %}" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-200">Back to Reports</a>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <p class="text-sm text-gray-500">Total Clients</p>
+            <p class="text-3xl font-bold text-indigo-600">{{ total_clients }}</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <p class="text-sm text-gray-500">Active Clients</p>
+            <p class="text-3xl font-bold text-green-600">{{ active_clients }}</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <p class="text-sm text-gray-500">Total Lifetime Value</p>
+            <p class="text-3xl font-bold text-indigo-600">₦{{ total_lifetime_value|floatformat:2 }}</p>
+        </div>
+    </div>
+    {% if top_clients %}
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h2 class="font-semibold text-gray-900 mb-4">Top Clients</h2>
+        <div class="space-y-3">
+            {% for c in top_clients %}
+            <div class="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
+                <span class="text-sm text-gray-700">{{ c.first_name }} {{ c.last_name }}</span>
+                <span class="text-sm font-medium">₦{{ c.total_spent|floatformat:2 }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

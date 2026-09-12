@@ -1,0 +1,51 @@
+[project]
+name = "studioflow"
+version = "1.0.0"
+description = "Photography studio management system"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=5.1,<5.2",
+    "djangorestframework",
+    "django-filter",
+    "celery[redis]",
+    "django-celery-beat",
+    "redis",
+    "psycopg2-binary",
+    "gunicorn",
+    "python-decouple",
+    "Pillow",
+    "weasyprint",
+    "django-storages",
+    "boto3",
+    "requests",
+    "whitenoise",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "black",
+    "pytest",
+    "pytest-django",
+    "factory-boy",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+exclude = ["*/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "SIM", "TCH"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["apps"]
+
+[tool.black]
+line-length = 120
+target-version = ["py312"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.testing"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+addopts = "-v --tb=short"

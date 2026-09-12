@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}{{ equipment.name }} - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ equipment.name }}</h1>
+            <p class="text-sm text-gray-500">{{ equipment.asset_number }}</p>
+        </div>
+        <a href="{% url 'equipment:edit' pk=equipment.pk %}" class="inline-flex items-center gap-2 bg-white text-gray-700 px-5 py-2.5 rounded-xl border border-gray-300 hover:bg-gray-50 transition-all text-sm font-medium">Edit</a>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</p>
+            <p class="font-medium mt-1"><span class="px-2 py-1 text-xs rounded-full {% if equipment.status == 'available' %}bg-green-100 text-green-700{% elif equipment.status == 'in_use' %}bg-blue-100 text-blue-700{% else %}bg-gray-100 text-gray-500{% endif %}">{{ equipment.get_status_display }}</span></p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Brand</p>
+            <p class="text-gray-900 font-medium mt-1">{{ equipment.brand|default:"-" }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Model</p>
+            <p class="text-gray-900 font-medium mt-1">{{ equipment.model_name|default:"-" }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Serial #</p>
+            <p class="text-gray-900 font-medium mt-1">{{ equipment.serial_number|default:"-" }}</p>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Assigned To</p>
+            <p class="text-gray-900 font-medium mt-1">{{ equipment.assigned_to|default:"Unassigned" }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Purchase Cost</p>
+            <p class="text-gray-900 font-medium mt-1">{% if equipment.purchase_cost %}N{{ equipment.purchase_cost|floatformat:2 }}{% else %}-{% endif %}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Next Maintenance</p>
+            <p class="text-gray-900 font-medium mt-1">{{ equipment.next_maintenance|date:"d M Y"|default:"-" }}</p>
+        </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+        <h2 class="text-sm font-semibold text-gray-900 mb-3">Actions</h2>
+        <div class="flex flex-wrap gap-2">
+            <form method="post" action="{% url 'equipment:status' pk=equipment.pk %}" class="inline">{% csrf_token %}
+                {% for s in status_choices %}
+                <input type="hidden" name="status" value="{{ s.0 }}">
+                <button type="submit" class="inline-flex items-center gap-2 bg-white text-gray-700 px-4 py-2 rounded-xl border border-gray-300 text-xs hover:bg-gray-50 transition-all">{{ s.1 }}</button>
+                {% endfor %}
+            </form>
+        </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+        <h2 class="text-sm font-semibold text-gray-900 mb-3">Assign / Unassign</h2>
+        <form method="post" action="{% url 'equipment:assign' pk=equipment.pk %}" class="flex gap-3 items-end">
+            {% csrf_token %}
+            <div class="flex-1"><label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Staff Member</label>
+            <select name="assigned_to" class="w-full px-4 py-2.5 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:bg-white transition">
+                <option value="">Unassign</option>
+            </select></div>
+            <button type="submit" class="inline-flex items-center gap-2 bg-brand-600 text-white px-5 py-2.5 rounded-xl hover:bg-brand-700 transition-all text-sm font-medium">Assign</button>
+        </form>
+    </div>
+    {% if equipment.notes %}
+    <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+        <h2 class="text-sm font-semibold text-gray-900 mb-2">Notes</h2>
+        <p class="text-gray-600 text-sm whitespace-pre-wrap">{{ equipment.notes }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

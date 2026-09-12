@@ -1,0 +1,28 @@
+{% load static %}
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4" id="photo-grid">
+    {% for photo in photos %}
+    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden group relative">
+        <div class="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
+            {% if photo.preview_key %}
+            <img src="/media/{{ photo.preview_key }}" alt="{{ photo.file_name }}" class="w-full h-full object-cover">
+            {% else %}
+            <span class="text-gray-400 text-sm">#{{ photo.image_number }}</span>
+            {% endif %}
+        </div>
+        <div class="px-3 py-2 flex justify-between items-center">
+            <span class="text-xs text-gray-500 truncate max-w-[80%]" title="{{ photo.file_name }}">{{ photo.file_name|truncatechars:15 }}</span>
+            <form method="post" action="{% url 'gallery_upload:delete' pk=photo.pk %}" class="inline"
+                  x-data x-confirm="Delete this photo?">
+                {% csrf_token %}
+                <button type="submit" class="text-gray-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-full text-center py-12 text-gray-400">No photos in this gallery yet</div>
+    {% endfor %}
+</div>

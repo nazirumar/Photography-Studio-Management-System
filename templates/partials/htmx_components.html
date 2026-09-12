@@ -1,0 +1,86 @@
+{# HTMX partial templates for dynamic updates #}
+
+{# Notification badge partial #}
+<div id="notification-badge" hx-get="{% url 'notifications:unread_count' %}" hx-trigger="load, every 30s" hx-swap="innerHTML">
+    <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold" x-show="count > 0" x-text="count" x-cloak></span>
+</div>
+
+{# Booking row partial for inline updates #}
+{% macro booking_row(booking) %}
+<tr id="booking-{{ booking.pk }}" class="hover:bg-gray-50 transition-colors" hx-get="{% url 'bookings:detail' pk=booking.pk %}" hx-target="closest tr" hx-swap="outerHTML">
+    <td class="px-6 py-4">
+        <div class="font-medium text-gray-900">{{ booking.reference }}</div>
+        <div class="text-xs text-gray-500">{{ booking.title|default:"No title" }}</div>
+    </td>
+    <td class="px-6 py-4 text-gray-600">{{ booking.client.display_name }}</td>
+    <td class="px-6 py-4 text-gray-600">{{ booking.date }}</td>
+    <td class="px-6 py-4">
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
+            {% if booking.status == 'confirmed' %}bg-emerald-100 text-emerald-800
+            {% elif booking.status == 'completed' %}bg-blue-100 text-blue-800
+            {% elif booking.status == 'cancelled' %}bg-red-100 text-red-800
+            {% else %}bg-gray-100 text-gray-600{% endif %}">
+            {{ booking.get_status_display }}
+        </span>
+    </td>
+    <td class="px-6 py-4 text-right font-semibold text-gray-900">N{{ booking.total_amount|floatformat:2 }}</td>
+</tr>
+{% endmacro %}
+
+{# Invoice row partial #}
+{% macro invoice_row(invoice) %}
+<tr id="invoice-{{ invoice.pk }}" class="hover:bg-gray-50 transition-colors">
+    <td class="px-6 py-4 font-medium text-gray-900">{{ invoice.invoice_number }}</td>
+    <td class="px-6 py-4 text-gray-600">{{ invoice.client.display_name }}</td>
+    <td class="px-6 py-4 text-gray-600">{{ invoice.issue_date }}</td>
+    <td class="px-6 py-4 text-right font-semibold">N{{ invoice.total|floatformat:2 }}</td>
+    <td class="px-6 py-4 text-right text-emerald-600">N{{ invoice.amount_paid|floatformat:2 }}</td>
+    <td class="px-6 py-4 text-right text-red-600 font-semibold">N{{ invoice.balance|floatformat:2 }}</td>
+    <td class="px-6 py-4">
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
+            {% if invoice.status == 'paid' %}bg-emerald-100 text-emerald-800
+            {% elif invoice.status == 'partial' %}bg-amber-100 text-amber-800
+            {% elif invoice.status == 'overdue' %}bg-red-100 text-red-800
+            {% else %}bg-gray-100 text-gray-600{% endif %}">
+            {{ invoice.get_status_display }}
+        </span>
+    </td>
+</tr>
+{% endmacro %}
+
+{# Status change button partial #}
+{% macro status_button(entity, status_choices, url_name) %}
+<div x-data="{ open: false }">
+    <button @click="open = !open" class="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700">
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100">
+            {{ entity.get_status_display }}
+        </span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+    </button>
+    <div x-show="open" @click.away="open = false" x-cloak class="absolute mt-2 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
+        {% for value, label in status_choices %}
+        <form method="post" action="{% url url_name pk=entity.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="{{ value }}">
+            <button type="submit" class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 {% if value == entity.status %}font-bold text-brand-600{% endif %}">
+                {{ label }}
+            </button>
+        </form>
+        {% endfor %}
+    </div>
+</div>
+{% endmacro %}
+
+{# Quick action buttons #}
+{% macro quick_actions(entity, edit_url, delete_url=None) %}
+<div class="flex items-center gap-1">
+    <a href="{{ edit_url }}" class="p-2 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition" title="Edit">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+    </a>
+    {% if delete_url %}
+    <button @click="$dispatch('open-confirm-modal', { title: 'Delete', message: 'Are you sure?', url: '{{ delete_url }}', type: 'danger' })" class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+    </button>
+    {% endif %}
+</div>
+{% endmacro %}

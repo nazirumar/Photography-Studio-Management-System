@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Client Portal - StudioFlow{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="h-full bg-gray-50">
+    <nav class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center gap-8">
+                    <a href="{% url 'portal:dashboard' %}" class="text-xl font-bold text-indigo-600">StudioFlow</a>
+                    <div class="hidden sm:flex gap-4">
+                        <a href="{% url 'portal:bookings' %}" class="text-gray-600 hover:text-gray-900">Bookings</a>
+                        <a href="{% url 'portal:invoices' %}" class="text-gray-600 hover:text-gray-900">Invoices</a>
+                        <a href="{% url 'portal:galleries' %}" class="text-gray-600 hover:text-gray-900">Galleries</a>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm text-gray-600">{{ user.get_full_name|default:user.email }}</span>
+                    <a href="{% url 'accounts:logout' %}" class="text-sm text-red-600 hover:text-red-800">Sign out</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

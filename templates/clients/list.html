@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Clients - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <!-- Page header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Clients</h1>
+            <p class="text-sm text-gray-500 mt-1">{{ total_count }} total client{{ total_count|pluralize }}</p>
+        </div>
+        <a href="{% url 'clients:create' %}" class="inline-flex items-center gap-2 bg-brand-600 text-white px-5 py-2.5 rounded-xl hover:bg-brand-700 transition-all text-sm font-medium shadow-sm shadow-brand-600/25">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+            Add Client
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
+        <form method="get" class="flex flex-col sm:flex-row gap-3">
+            <div class="flex-1 relative">
+                <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input type="text" name="q" value="{{ search }}" placeholder="Search by name, email, or phone..."
+                    class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:bg-white transition">
+            </div>
+            <select name="status" class="bg-gray-50 border-0 rounded-xl text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition">
+                <option value="">All Status</option>
+                <option value="active" {% if status == "active" %}selected{% endif %}>Active</option>
+                <option value="archived" {% if status == "archived" %}selected{% endif %}>Archived</option>
+            </select>
+            <button type="submit" class="bg-gray-900 text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-800 transition">Search</button>
+            {% if search or status %}
+            <a href="?" class="text-gray-500 px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-100 transition">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-100">
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider">Client</th>
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider hidden sm:table-cell">Phone</th>
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider hidden md:table-cell">Email</th>
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider">Status</th>
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider hidden lg:table-cell">Created</th>
+                        <th class="text-right px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for client in clients %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <a href="{% url 'clients:detail' pk=client.pk %}" class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-brand-100 flex items-center justify-center flex-shrink-0">
+                                    <span class="text-brand-700 font-semibold text-sm">{{ client.display_name|first|upper }}</span>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-900">{{ client.display_name }}</p>
+                                    <p class="text-xs text-gray-500">{{ client.client_number }}</p>
+                                </div>
+                            </a>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600 hidden sm:table-cell">{{ client.phone|default:"-" }}</td>
+                        <td class="px-6 py-4 text-gray-600 hidden md:table-cell">{{ client.email|default:"-" }}</td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {% if client.status == 'active' %}bg-emerald-100 text-emerald-800{% else %}bg-gray-100 text-gray-500{% endif %}">
+                                {{ client.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-500 hidden lg:table-cell">{{ client.created_at|date:"M d, Y" }}</td>
+                        <td class="px-6 py-4 text-right">
+                            <a href="{% url 'clients:detail' pk=client.pk %}" class="text-gray-400 hover:text-brand-600 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-16 text-center">
+                            <svg class="w-12 h-12 text-gray-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <p class="text-gray-500 mt-3 text-sm">No clients found</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if clients.has_other_pages %}
+        <div class="px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-3 text-sm">
+            <span class="text-gray-500">Page {{ clients.number }} of {{ clients.paginator.num_pages }}</span>
+            <div class="flex gap-2">
+                {% if clients.has_previous %}
+                <a href="?page={{ clients.previous_page_number }}" class="px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-sm font-medium transition">Previous</a>
+                {% endif %}
+                {% if clients.has_next %}
+                <a href="?page={{ clients.next_page_number }}" class="px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-sm font-medium transition">Next</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}{{ booking.reference }} - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ booking.reference }}</h1>
+            <p class="text-sm text-gray-500">{{ booking.title|default:booking.event_type|default:"Booking" }}</p>
+        </div>
+        <div class="flex gap-2">
+            {% if booking.status != 'completed' and booking.status != 'cancelled' %}
+            <form method="post" action="{% url 'bookings:status' pk=booking.pk %}" class="inline">
+                {% csrf_token %}
+                {% if booking.status == 'enquiry' %}
+                <input type="hidden" name="status" value="tentative">
+                <button type="submit" class="inline-flex items-center gap-2 bg-yellow-500 text-white px-5 py-2.5 rounded-xl hover:bg-yellow-600 transition-all text-sm font-medium">Mark Tentative</button>
+                {% elif booking.status == 'tentative' or booking.status == 'awaiting_deposit' %}
+                <input type="hidden" name="status" value="confirmed">
+                <button type="submit" class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl hover:bg-green-700 transition-all text-sm font-medium">Confirm</button>
+                {% elif booking.status == 'confirmed' %}
+                <input type="hidden" name="status" value="in_progress">
+                <button type="submit" class="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-all text-sm font-medium">Start Shoot</button>
+                {% elif booking.status == 'in_progress' %}
+                <input type="hidden" name="status" value="completed">
+                <button type="submit" class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl hover:bg-green-700 transition-all text-sm font-medium">Complete</button>
+                {% endif %}
+            </form>
+            <form method="post" action="{% url 'bookings:status' pk=booking.pk %}" class="inline">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="cancelled">
+                <button type="submit" class="inline-flex items-center gap-2 bg-white text-red-600 px-5 py-2.5 rounded-xl border border-red-300 hover:bg-red-50 transition-all text-sm font-medium">Cancel</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</p>
+            <p class="font-medium mt-1">
+                <span class="px-2 py-1 text-xs rounded-full
+                    {% if booking.status == 'confirmed' %}bg-green-100 text-green-700
+                    {% elif booking.status == 'completed' %}bg-blue-100 text-blue-700
+                    {% elif booking.status == 'cancelled' %}bg-red-100 text-red-700
+                    {% else %}bg-gray-100 text-gray-500{% endif %}">
+                    {{ booking.get_status_display }}
+                </span>
+            </p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Client</p>
+            <a href="{% url 'clients:detail' pk=booking.client.pk %}" class="font-medium text-brand-600 hover:text-brand-700 mt-1 block">{{ booking.client.display_name }}</a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</p>
+            <p class="text-gray-900 font-medium mt-1">{{ booking.date|date:"d M Y" }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Time</p>
+            <p class="text-gray-900 font-medium mt-1">{{ booking.start_time|time:"H:i"|default:"-" }} - {{ booking.end_time|time:"H:i"|default:"-" }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Location</p>
+            <p class="text-gray-900 font-medium mt-1">{{ booking.location|default:"-" }}</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total</p>
+            <p class="text-2xl font-bold text-gray-900 mt-1">N{{ booking.total_amount|floatformat:2 }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Paid</p>
+            <p class="text-2xl font-bold text-green-600 mt-1">N{{ booking.amount_paid|floatformat:2 }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Balance</p>
+            <p class="text-2xl font-bold {% if booking.balance > 0 %}text-red-600{% else %}text-green-600{% endif %} mt-1">N{{ booking.balance|floatformat:2 }}</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Payment Status</p>
+            <p class="font-medium mt-1">
+                <span class="px-2 py-1 text-xs rounded-full
+                    {% if booking.payment_status == 'paid' %}bg-green-100 text-green-700
+                    {% elif booking.payment_status == 'partial' %}bg-yellow-100 text-yellow-700
+                    {% else %}bg-gray-100 text-gray-500{% endif %}">
+                    {{ booking.get_payment_status_display }}
+                </span>
+            </p>
+        </div>
+    </div>
+
+    {% if booking.balance > 0 and booking.status != 'cancelled' %}
+    <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+        <h2 class="text-sm font-semibold text-gray-900 mb-3">Record Payment</h2>
+        <form method="post" action="{% url 'bookings:payment' pk=booking.pk %}" class="flex gap-3 items-end flex-wrap">
+            {% csrf_token %}
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Amount</label>
+                <input type="number" name="amount" step="0.01" required class="w-full px-4 py-2.5 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:bg-white transition" placeholder="0.00">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Method</label>
+                <select name="method" class="w-full px-4 py-2.5 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:bg-white transition">
+                    <option value="cash">Cash</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="pos">POS</option>
+                    <option value="card">Card</option>
+                    <option value="online">Online</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Reference</label>
+                <input type="text" name="reference" class="w-full px-4 py-2.5 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:bg-white transition" placeholder="TXN-...">
+            </div>
+            <button type="submit" class="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl hover:bg-green-700 transition-all text-sm font-medium whitespace-nowrap">Record</button>
+        </form>
+    </div>
+    {% endif %}
+
+    {% if payments %}
+    <div class="bg-white rounded-2xl border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-100">
+            <h2 class="text-sm font-semibold text-gray-900">Payments</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-left">
+                    <tr>
+                        <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Reference</th>
+                        <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
+                        <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Method</th>
+                        <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for payment in payments %}
+                    <tr>
+                        <td class="px-6 py-3 text-gray-900">{{ payment.reference }}</td>
+                        <td class="px-6 py-3 text-green-600 font-medium">N{{ payment.amount|floatformat:2 }}</td>
+                        <td class="px-6 py-3 text-gray-600">{{ payment.get_method_display }}</td>
+                        <td class="px-6 py-3 text-gray-500">{{ payment.payment_date|date:"d M Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if booking.special_instructions %}
+    <div class="bg-white rounded-2xl border border-gray-200 px-6 py-4">
+        <h2 class="text-sm font-semibold text-gray-900 mb-2">Special Instructions</h2>
+        <p class="text-gray-600 text-sm whitespace-pre-wrap">{{ booking.special_instructions }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

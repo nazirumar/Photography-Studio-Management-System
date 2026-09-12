@@ -1,0 +1,37 @@
+{% extends "portal/base.html" %}
+{% block title %}{{ gallery.title|default:"Gallery" }} - Client Portal{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ gallery.title|default:gallery.project.reference }}</h1>
+            <p class="text-sm text-gray-500">{{ selected_count }} photos selected</p>
+        </div>
+        <a href="{% url 'portal:galleries' %}" class="text-brand-600 hover:text-brand-700 text-sm">Back to Galleries</a>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {% for photo in photos %}
+        <div class="relative group">
+            <div class="aspect-square bg-gray-200 rounded-2xl overflow-hidden">
+                {% if photo.file %}
+                <img src="{{ photo.file.url }}" alt="" class="w-full h-full object-cover">
+                {% else %}
+                <div class="w-full h-full flex items-center justify-center text-gray-400">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                {% endif %}
+            </div>
+            <a href="{% url 'portal:photo_select' pk=photo.pk %}" class="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center {% if photo.is_selected %}bg-green-500 text-white{% else %}bg-white bg-opacity-80 text-gray-600 hover:bg-green-500 hover:text-white{% endif %} transition">
+                {% if photo.is_selected %}
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                {% else %}
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                {% endif %}
+            </a>
+        </div>
+        {% empty %}
+        <div class="col-span-4 text-center text-gray-400 py-12">No photos in this gallery</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Notifications - StudioFlow{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Notifications</h1>
+            <p class="text-sm text-gray-500 mt-1">{{ unread_count }} unread</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            {% if unread_count > 0 %}
+            <form method="post" action="{% url 'notifications:mark_all_read' %}">
+                {% csrf_token %}
+                <button type="submit" class="inline-flex items-center gap-2 bg-brand-600 text-white px-5 py-2.5 rounded-xl hover:bg-brand-700 transition-all text-sm font-medium shadow-sm shadow-brand-600/25">Mark All Read</button>
+            </form>
+            {% endif %}
+            <a href="{% url 'notifications:list' %}{% if not unread_only %}?unread=1{% endif %}" class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-5 py-2.5 rounded-xl hover:bg-gray-50 transition text-sm font-medium">{% if unread_only %}Show All{% else %}Unread Only{% endif %}</a>
+            <form method="post" action="{% url 'notifications:cleanup' %}">
+                {% csrf_token %}
+                <button type="submit" class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-5 py-2.5 rounded-xl hover:bg-gray-50 transition text-sm font-medium">Cleanup Old</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div class="divide-y divide-gray-100">
+            {% for notif in notifications %}
+            <div class="px-6 py-4 flex items-start gap-4 {% if not notif.is_read %}bg-brand-50{% endif %} hover:bg-gray-50 transition-colors">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h3 class="text-sm font-medium text-gray-900">{{ notif.title }}</h3>
+                        {% if not notif.is_read %}
+                        <span class="w-2 h-2 rounded-full bg-brand-500 flex-shrink-0"></span>
+                        {% endif %}
+                        <span class="px-2.5 py-0.5 text-xs rounded-full font-medium bg-gray-100 text-gray-600">{{ notif.get_notification_type_display }}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-1">{{ notif.message }}</p>
+                    <p class="text-xs text-gray-400 mt-1">{{ notif.created_at|timesince }} ago</p>
+                </div>
+                {% if not notif.is_read %}
+                <a href="{% url 'notifications:mark_read' pk=notif.pk %}" class="text-gray-400 hover:text-brand-600 transition whitespace-nowrap">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                </a>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="px-6 py-16 text-center">
+                <svg class="w-12 h-12 text-gray-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                <p class="text-gray-500 mt-3 text-sm">No notifications</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

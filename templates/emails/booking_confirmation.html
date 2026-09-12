@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: #6366f1; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+        <h1 style="margin: 0;">Booking Confirmed!</h1>
+    </div>
+    <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb;">
+        <p>Dear {{ booking.client.display_name }},</p>
+        <p>Your booking has been confirmed. Here are the details:</p>
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+            <tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><strong>Reference:</strong></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">{{ booking.reference }}</td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><strong>Event Type:</strong></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">{{ booking.event_type|default:"Photo Session" }}</td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><strong>Date:</strong></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">{{ booking.date }}</td></tr>
+            {% if booking.start_time %}<tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><strong>Time:</strong></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">{{ booking.start_time }}</td></tr>{% endif %}
+            {% if booking.location %}<tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><strong>Location:</strong></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">{{ booking.location }}</td></tr>{% endif %}
+            {% if booking.package %}<tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><strong>Package:</strong></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">{{ booking.package.name }}</td></tr>{% endif %}
+            <tr><td style="padding: 8px;"><strong>Total Amount:</strong></td><td style="padding: 8px; font-size: 18px; font-weight: bold;">N{{ booking.total_amount|floatformat:2 }}</td></tr>
+        </table>
+        {% if booking.special_instructions %}<p><strong>Special Instructions:</strong> {{ booking.special_instructions }}</p>{% endif %}
+        <p>If you need to make any changes, please contact us.</p>
+    </div>
+    <div style="padding: 20px; text-align: center; color: #6b7280; font-size: 12px;">
+        <p>Thank you for choosing us!</p>
+    </div>
+</body>
+</html>

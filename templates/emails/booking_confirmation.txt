@@ -1,0 +1,17 @@
+Booking Confirmed!
+
+Dear {{ booking.client.display_name }},
+
+Your booking has been confirmed. Here are the details:
+
+Reference: {{ booking.reference }}
+Event Type: {{ booking.event_type|default:"Photo Session" }}
+Date: {{ booking.date }}
+{% if booking.start_time %}Time: {{ booking.start_time }}{% endif %}
+{% if booking.location %}Location: {{ booking.location }}{% endif %}
+{% if booking.package %}Package: {{ booking.package.name }}{% endif %}
+Total Amount: N{{ booking.total_amount|floatformat:2 }}
+
+{% if booking.special_instructions %}Special Instructions: {{ booking.special_instructions }}{% endif %}
+
+If you need to make any changes, please contact us.

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Maintenance Due - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <h1 class="text-2xl font-bold text-gray-900">Maintenance Due</h1>
+    <div class="bg-white rounded-xl border border-gray-200">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-left">
+                    <tr>
+                        <th class="px-5 py-3 font-medium text-gray-500">Asset #</th>
+                        <th class="px-5 py-3 font-medium text-gray-500">Name</th>
+                        <th class="px-5 py-3 font-medium text-gray-500">Next Maintenance</th>
+                        <th class="px-5 py-3 font-medium text-gray-500">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for eq in items %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-5 py-3 text-gray-900">{{ eq.asset_number }}</td>
+                        <td class="px-5 py-3"><a href="{% url 'equipment:detail' pk=eq.pk %}" class="text-indigo-600">{{ eq.name }}</a></td>
+                        <td class="px-5 py-3 text-red-600 font-medium">{{ eq.next_maintenance|date:"d M Y" }}</td>
+                        <td class="px-5 py-3">{{ eq.get_status_display }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="px-5 py-12 text-center text-gray-400">No maintenance due</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

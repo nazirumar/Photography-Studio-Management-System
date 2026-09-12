@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: #6366f1; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+        <h1 style="margin: 0;">Your Photos Are Ready!</h1>
+    </div>
+    <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb;">
+        <p>Dear {{ project.client.display_name }},</p>
+        <p>Your photos from <strong>{{ project.reference }}</strong> are now ready for selection.</p>
+        <p>Please log in to the client portal to view and select your favorite images.</p>
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="#" style="background: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">View Photos</a>
+        </div>
+        <p><strong>Photos Available:</strong> {{ project.total_for_selection }}</p>
+    </div>
+    <div style="padding: 20px; text-align: center; color: #6b7280; font-size: 12px;">
+        <p>Thank you for your patience!</p>
+    </div>
+</body>
+</html>

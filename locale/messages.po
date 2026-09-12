@@ -1,0 +1,206 @@
+# StudioFlow Translation Files
+
+# Nigerian Languages Support
+
+# Yoruba Translations (yo)
+msgid ""
+msgstr ""
+"Project-Id-Version: StudioFlow 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Last-Translator: StudioFlow Team\n"
+"Language: yo\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Dashboard"
+msgstr "Ẹ̀kọ́ Ìṣàkóso"
+
+msgid "Bookings"
+msgstr "Ìṣèdá Ìpè"
+
+msgid "Clients"
+msgstr "Àwọn Alàbọ̀"
+
+msgid "Invoices"
+msgstr "Ìwé Ìṣẹ̀"
+
+msgid "Payments"
+msgstr "Ìṣòwò"
+
+msgid "Gallery"
+msgstr "Ílẹ̀ Àwòrán"
+
+msgid "Settings"
+msgstr "Ìṣètò"
+
+msgid "Reports"
+msgstr "Ìtọ́ka"
+
+msgid "Inventory"
+msgstr "Ìkọ̀"
+
+msgid "Expenses"
+msgstr "Ìlòwò"
+
+msgid "Calendar"
+msgstr "Kọlẹ́ẹ̀ndà"
+
+msgid "Search"
+msgstr "Wá"
+
+msgid "Save"
+msgstr "Fi Mú"
+
+msgid "Cancel"
+msgstr "Fagile"
+
+msgid "Delete"
+msgstr "Parẹ́"
+
+msgid "Edit"
+msgstr "Ṣàtúnṣe"
+
+msgid "Create"
+msgstr "Ṣẹ̀dá"
+
+msgid "Submit"
+msgstr "Fi Ránṣẹ́"
+
+
+# Igbo Translations (ig)
+msgid ""
+msgstr ""
+"Project-Id-Version: StudioFlow 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Last-Translator: StudioFlow Team\n"
+"Language: ig\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Dashboard"
+msgstr "Nchịkọta"
+
+msgid "Bookings"
+msgstr "Ndesịta"
+
+msgid "Clients"
+msgstr "Ndị Ahịa"
+
+msgid "Invoices"
+msgstr "Akwụkwọ Ọrụ"
+
+msgid "Payments"
+msgstr "Ego"
+
+msgid "Gallery"
+msgstr "Usoro Mmasị"
+
+msgid "Settings"
+msgstr "Ntọala"
+
+msgid "Reports"
+msgstr "Akwụkwọ"
+
+msgid "Inventory"
+msgstr "Ego Nnọchite"
+
+msgid "Expenses"
+msgstr "Ego Ruo"
+
+msgid "Calendar"
+msgstr "Kalenda"
+
+msgid "Search"
+msgstr "Chọọ"
+
+msgid "Save"
+msgstr "Chekwaa"
+
+msgid "Cancel"
+msgstr "Kagbuo"
+
+msgid "Delete"
+msgstr "Ewepụ"
+
+msgid "Edit"
+msgstr "Gbanwee"
+
+msgid "Create"
+msgstr "Mepụta"
+
+msgid "Submit"
+msgstr "Nyochaa"
+
+
+# Hausa Translations (ha)
+msgid ""
+msgstr ""
+"Project-Id-Version: StudioFlow 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Last-Translator: StudioFlow Team\n"
+"Language: ha\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Dashboard"
+msgstr "Tambaya"
+
+msgid "Bookings"
+msgstr "Rassa"
+
+msgid "Clients"
+msgstr "Mabatile"
+
+msgid "Invoices"
+msgstr "Kundin Kashe"
+
+msgid "Payments"
+msgstr "Biya"
+
+msgid "Gallery"
+msgstr "Ɗakin Hotuna"
+
+msgid "Settings"
+msgstr "Saiti"
+
+msgid "Reports"
+msgstr "Rahotanni"
+
+msgid "Inventory"
+msgstr "Kwando"
+
+msgid "Expenses"
+msgstr "Kashe"
+
+msgid "Calendar"
+msgstr "Kwanan Wata"
+
+msgid "Search"
+msgstr "Bincika"
+
+msgid "Save"
+msgstr "Ajiye"
+
+msgid "Cancel"
+msgstr "Soke"
+
+msgid "Delete"
+msgstr "Goge"
+
+msgid "Edit"
+msgstr "Gyara"
+
+msgid "Create"
+msgstr "Ƙirƙira"
+
+msgid "Submit"
+msgstr "Tura"

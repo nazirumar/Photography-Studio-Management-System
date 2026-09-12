@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Categories - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-900">Service Categories</h1>
+        <a href="{% url 'packages:category_create' %}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium">
+            Add Category
+        </a>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-left">
+                    <tr>
+                        <th class="px-5 py-3 font-medium text-gray-500">Name</th>
+                        <th class="px-5 py-3 font-medium text-gray-500">Description</th>
+                        <th class="px-5 py-3 font-medium text-gray-500">Active</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for cat in categories %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-5 py-3 font-medium text-gray-900">{{ cat.name }}</td>
+                        <td class="px-5 py-3 text-gray-600">{{ cat.description|default:"-"|truncatewords:10 }}</td>
+                        <td class="px-5 py-3">
+                            <span class="px-2 py-1 text-xs rounded-full {% if cat.is_active %}bg-green-100 text-green-700{% else %}bg-gray-100 text-gray-500{% endif %}">
+                                {% if cat.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" class="px-5 py-12 text-center text-gray-400">No categories</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: #6366f1; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+        <h1 style="margin: 0;">{{ studio.name }}</h1>
+    </div>
+    <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb;">
+        <h2>Payment Receipt</h2>
+        <p>Dear {{ payment.client.display_name }},</p>
+        <p>We have received your payment. Thank you!</p>
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+            <tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><strong>Reference:</strong></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">{{ payment.reference }}</td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><strong>Amount:</strong></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb; font-size: 18px; font-weight: bold; color: #059669;">N{{ payment.amount|floatformat:2 }}</td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;"><strong>Date:</strong></td><td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">{{ payment.payment_date }}</td></tr>
+            <tr><td style="padding: 8px;"><strong>Method:</strong></td><td style="padding: 8px;">{{ payment.get_method_display }}</td></tr>
+        </table>
+        {% if payment.notes %}<p><em>{{ payment.notes }}</em></p>{% endif %}
+    </div>
+    <div style="padding: 20px; text-align: center; color: #6b7280; font-size: 12px;">
+        <p>{{ studio.name }}</p>
+    </div>
+</body>
+</html>

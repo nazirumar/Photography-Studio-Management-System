@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Audit Log - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Audit Log</h1>
+            <p class="text-sm text-gray-500 mt-1">Track all system activity</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
+        <form method="get" class="flex flex-col sm:flex-row gap-3 items-end flex-wrap">
+            <div class="flex-1 min-w-[150px]">
+                <label class="block text-xs text-gray-600 mb-1 font-medium">Entity Type</label>
+                <select name="entity_type" class="w-full bg-gray-50 border-0 rounded-xl text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition">
+                    <option value="">All</option>
+                    <option value="Booking" {% if request.GET.entity_type == "Booking" %}selected{% endif %}>Booking</option>
+                    <option value="Client" {% if request.GET.entity_type == "Client" %}selected{% endif %}>Client</option>
+                    <option value="Lead" {% if request.GET.entity_type == "Lead" %}selected{% endif %}>Lead</option>
+                    <option value="Invoice" {% if request.GET.entity_type == "Invoice" %}selected{% endif %}>Invoice</option>
+                    <option value="Payment" {% if request.GET.entity_type == "Payment" %}selected{% endif %}>Payment</option>
+                    <option value="Project" {% if request.GET.entity_type == "Project" %}selected{% endif %}>Project</option>
+                    <option value="Photo" {% if request.GET.entity_type == "Photo" %}selected{% endif %}>Photo</option>
+                    <option value="InventoryItem" {% if request.GET.entity_type == "InventoryItem" %}selected{% endif %}>Inventory</option>
+                    <option value="Equipment" {% if request.GET.entity_type == "Equipment" %}selected{% endif %}>Equipment</option>
+                    <option value="PrintJob" {% if request.GET.entity_type == "PrintJob" %}selected{% endif %}>Print Job</option>
+                    <option value="Notification" {% if request.GET.entity_type == "Notification" %}selected{% endif %}>Notification</option>
+                </select>
+            </div>
+            <div class="flex-1 min-w-[150px]">
+                <label class="block text-xs text-gray-600 mb-1 font-medium">Action</label>
+                <input type="text" name="action" value="{{ request.GET.action }}" placeholder="e.g. created"
+                    class="w-full bg-gray-50 border-0 rounded-xl text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition">
+            </div>
+            <button type="submit" class="bg-gray-900 text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-800 transition">Filter</button>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-100">
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider">Time</th>
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider">User</th>
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider hidden sm:table-cell">Action</th>
+                        <th class="text-left px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider hidden md:table-cell">Entity</th>
+                        <th class="text-right px-6 py-4 font-semibold text-gray-600 text-xs uppercase tracking-wider">Details</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for log in logs %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 text-gray-500">{{ log.timestamp|date:"M d, H:i" }}</td>
+                        <td class="px-6 py-4 text-gray-900 font-medium">{{ log.user.get_full_name|default:log.user.email }}</td>
+                        <td class="px-6 py-4 hidden sm:table-cell">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-brand-100 text-brand-700">{{ log.action }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-700 hidden md:table-cell">{{ log.entity_type }} <span class="text-gray-400 text-xs">{{ log.entity_id|truncatechars:8 }}</span></td>
+                        <td class="px-6 py-4 text-right">
+                            <a href="{% url 'audit:detail' pk=log.pk %}" class="text-gray-400 hover:text-brand-600 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-16 text-center">
+                            <svg class="w-12 h-12 text-gray-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <p class="text-gray-500 mt-3 text-sm">No audit logs</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

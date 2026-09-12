@@ -1,0 +1,13 @@
+Your Photos Are Ready for Delivery!
+
+Dear {{ project.client.display_name }},
+
+Great news! Your photos from {{ project.reference }} are ready for delivery.
+
+Project: {{ project.reference }}
+Photos Edited: {{ project.edited_count }}
+{% if project.actual_delivery %}Delivery Date: {{ project.actual_delivery }}{% endif %}
+
+Please contact us to arrange pickup or delivery.
+
+Thank you for choosing us!

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Gallery Report - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-gray-900">Gallery Report</h1>
+        <a href="{% url 'reports:dashboard' %}" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-200">Back to Reports</a>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <p class="text-sm text-gray-500">Total Photos</p>
+            <p class="text-3xl font-bold text-indigo-600">{{ total_photos }}</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <p class="text-sm text-gray-500">Selected Photos</p>
+            <p class="text-3xl font-bold text-green-600">{{ selected_photos }}</p>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <p class="text-sm text-gray-500">Total Galleries</p>
+            <p class="text-3xl font-bold text-indigo-600">{{ total_galleries }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

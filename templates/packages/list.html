@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Packages - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Packages</h1>
+            <p class="text-sm text-gray-500 mt-1">{{ total_count }} total package{{ total_count|pluralize }}</p>
+        </div>
+        <a href="{% url 'packages:create' %}" class="inline-flex items-center gap-2 bg-brand-600 text-white px-5 py-2.5 rounded-xl hover:bg-brand-700 transition-all text-sm font-medium shadow-sm shadow-brand-600/25">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+            Add Package
+        </a>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
+        <form method="get" class="flex flex-col sm:flex-row gap-3">
+            <div class="flex-1 min-w-[200px] relative">
+                <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                {{ form.q }}
+            </div>
+            {{ form.category }}
+            {{ form.status }}
+            <button type="submit" class="bg-gray-900 text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-800 transition">Search</button>
+        </form>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for pkg in packages %}
+        <div class="bg-white border border-gray-200 rounded-2xl p-5 hover:border-brand-300 transition-colors">
+            <div class="flex justify-between items-start">
+                <a href="{% url 'packages:detail' pk=pkg.pk %}" class="text-brand-600 hover:text-brand-700 font-semibold">{{ pkg.name }}</a>
+                <span class="px-2.5 py-1 text-xs rounded-full font-medium {% if pkg.is_active %}bg-emerald-100 text-emerald-800{% else %}bg-gray-100 text-gray-500{% endif %}">
+                    {% if pkg.is_active %}Active{% else %}Inactive{% endif %}
+                </span>
+            </div>
+            <p class="text-2xl font-bold text-gray-900 mt-2">N{{ pkg.price|floatformat:2 }}</p>
+            <div class="mt-3 text-sm text-gray-500 space-y-1">
+                <p>{{ pkg.duration_hours }}h duration | {{ pkg.outfit_changes }} outfit{{ pkg.outfit_changes|pluralize }} | {{ pkg.edited_images }} edited images</p>
+                {% if pkg.category %}<p>Category: {{ pkg.category.name }}</p>{% endif %}
+            </div>
+            <div class="mt-4 flex gap-2">
+                <a href="{% url 'packages:edit' pk=pkg.pk %}" class="text-sm text-gray-600 hover:text-gray-800">Edit</a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-16">
+            <svg class="w-12 h-12 text-gray-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            <p class="text-gray-500 mt-3 text-sm">No packages found</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

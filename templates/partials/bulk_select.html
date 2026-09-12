@@ -1,0 +1,87 @@
+{# Multi-select bulk actions component #}
+{# Usage: Wrap table with {% bulk_select form_id="clients" %} and add checkboxes #}
+
+<div x-data="bulkSelect()" x-init="init()">
+    <!-- Bulk action bar -->
+    <div x-show="selected.length > 0" x-cloak
+         class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-4 z-50"
+         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
+        <span class="text-sm font-medium"><span x-text="selected.length"></span> selected</span>
+        <div class="h-6 w-px bg-gray-700"></div>
+        <slot name="actions">
+            <button @click="bulkAction('delete')" class="text-sm text-red-400 hover:text-red-300 transition">Delete</button>
+            <button @click="bulkAction('export')" class="text-sm text-blue-400 hover:text-blue-300 transition">Export</button>
+        </slot>
+        <button @click="clearSelection()" class="text-gray-400 hover:text-white transition ml-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+    </div>
+</div>
+
+<script>
+function bulkSelect() {
+    return {
+        selected: [],
+        formId: 'bulk-form',
+        init() {
+            this.formId = this.$el.closest('form')?.id || 'bulk-form';
+        },
+        toggle(id) {
+            if (this.selected.includes(id)) {
+                this.selected = this.selected.filter(x => x !== id);
+            } else {
+                this.selected.push(id);
+            }
+            this.updateCheckboxes();
+        },
+        toggleAll() {
+            const checkboxes = document.querySelectorAll(`[data-select-item]`);
+            if (this.selected.length === checkboxes.length) {
+                this.selected = [];
+            } else {
+                this.selected = [...checkboxes].map(cb => cb.dataset.selectItem);
+            }
+            this.updateCheckboxes();
+        },
+        updateCheckboxes() {
+            document.querySelectorAll(`[data-select-item]`).forEach(cb => {
+                cb.checked = this.selected.includes(cb.dataset.selectItem);
+            });
+        },
+        clearSelection() {
+            this.selected = [];
+            this.updateCheckboxes();
+        },
+        async bulkAction(action) {
+            if (this.selected.length === 0) return;
+            const url = `/api/v1/bulk/${action}/`;
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ ids: this.selected })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    if (window.toast) window.toast(`${action} completed for ${this.selected.length} items`, 'success');
+                    this.clearSelection();
+                    location.reload();
+                } else {
+                    if (window.toast) window.toast(data.error || 'Action failed', 'error');
+                }
+            } catch(e) {
+                if (window.toast) window.toast('Network error', 'error');
+            }
+        }
+    };
+}
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+</script>

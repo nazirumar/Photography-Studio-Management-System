@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: studioflow_test
+          POSTGRES_USER: studioflow
+          POSTGRES_PASSWORD: studioflow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    env:
+      DJANGO_SETTINGS_MODULE: config.settings.testing
+      DJANGO_SECRET_KEY: test-secret-key
+      DATABASE_URL: postgres://studioflow:studioflow@localhost:5432/studioflow_test
+      REDIS_URL: redis://localhost:6379/0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+      - name: Install dependencies
+        run: uv sync --all-extras
+      - name: Lint with Ruff
+        run: uv run ruff check .
+      - name: Check formatting with Black
+        run: uv run black --check .
+      - name: Run tests
+        run: uv run pytest
+      - name: Django system check
+        run: uv run python manage.py check
+      - name: Check migrations
+        run: uv run python manage.py makemigrations --check --dry-run

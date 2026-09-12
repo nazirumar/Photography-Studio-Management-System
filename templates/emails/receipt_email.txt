@@ -1,0 +1,12 @@
+Payment Receipt
+
+Dear {{ payment.client.display_name }},
+
+We have received your payment. Thank you!
+
+Reference: {{ payment.reference }}
+Amount: N{{ payment.amount|floatformat:2 }}
+Date: {{ payment.payment_date }}
+Method: {{ payment.get_method_display }}
+
+{% if payment.notes %}{{ payment.notes }}{% endif %}
