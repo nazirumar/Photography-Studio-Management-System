@@ -39,6 +39,9 @@ urlpatterns = [
     path("search/", include("apps.core.search_urls")),
     path("health/", include("apps.core.health_urls")),
     path("ai-fde/", include("apps.ai_fde.urls")),
+    path("staff/", include("apps.staff.urls")),
+    path("contracts/", include("apps.contracts.urls")),
+    path("feedback/", include("apps.feedback.urls")),
 ]
 
 if settings.DEBUG:

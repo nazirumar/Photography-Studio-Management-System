@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Booking Requests - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Booking Requests</h1>
+            <p class="text-gray-500 mt-1">{{ total_count }} total requests</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex gap-3 flex-wrap">
+            <a href="{% url 'bookings:request_list' %}" class="px-3 py-1.5 rounded-lg text-xs font-medium {% if not status %}bg-brand-100 text-brand-700{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">All</a>
+            {% for value, label in status_choices %}
+            <a href="?status={{ value }}" class="px-3 py-1.5 rounded-lg text-xs font-medium {% if status == value %}bg-brand-100 text-brand-700{% else %}bg-gray-100 text-gray-600 hover:bg-gray-200{% endif %}">{{ label }}</a>
+            {% endfor %}
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gray-100">
+                        <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Name</th>
+                        <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Event</th>
+                        <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Date</th>
+                        <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Created</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for req in requests %}
+                    <tr class="hover:bg-gray-50 cursor-pointer" onclick="location.href='{% url 'bookings:request_detail' pk=req.pk %}'">
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-medium text-gray-900">{{ req.first_name }} {{ req.last_name }}</div>
+                            <div class="text-xs text-gray-500">{{ req.email }}</div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ req.event_type }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ req.preferred_date }}</td>
+                        <td class="px-6 py-4">
+                            {% if req.status == 'pending' %}
+                            <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">Pending</span>
+                            {% elif req.status == 'reviewed' %}
+                            <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">Reviewed</span>
+                            {% elif req.status == 'converted' %}
+                            <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Converted</span>
+                            {% else %}
+                            <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">Declined</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ req.created_at|timesince }} ago</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 text-sm">No booking requests yet</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

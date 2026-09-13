@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}{{ supplier.name }} - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ supplier.name }}</h1>
+            <p class="text-gray-500 mt-1">{{ supplier.contact_person }}</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{% url 'inventory:supplier_edit' pk=supplier.pk %}" class="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium">Edit</a>
+            <a href="{% url 'inventory:supplier_order_create' supplier_pk=supplier.pk %}" class="bg-brand-600 text-white px-4 py-2 rounded-xl hover:bg-brand-700 text-sm font-medium">New Order</a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Order History</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-gray-100">
+                                <th class="text-left px-4 py-2 text-xs font-medium text-gray-500 uppercase">Order #</th>
+                                <th class="text-left px-4 py-2 text-xs font-medium text-gray-500 uppercase">Item</th>
+                                <th class="text-left px-4 py-2 text-xs font-medium text-gray-500 uppercase">Qty</th>
+                                <th class="text-left px-4 py-2 text-xs font-medium text-gray-500 uppercase">Cost</th>
+                                <th class="text-left px-4 py-2 text-xs font-medium text-gray-500 uppercase">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            {% for o in orders %}
+                            <tr>
+                                <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ o.order_number }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-600">{{ o.item_name }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-600">{{ o.quantity }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-600">&#8358;{{ o.total_cost|floatformat:2 }}</td>
+                                <td class="px-4 py-3">
+                                    {% if o.status == 'delivered' %}
+                                    <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Delivered</span>
+                                    {% elif o.status == 'ordered' %}
+                                    <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">Ordered</span>
+                                    {% elif o.status == 'pending' %}
+                                    <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">Pending</span>
+                                    {% else %}
+                                    <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">{{ o.get_status_display }}</span>
+                                    {% endif %}
+                                    {% if o.status != 'delivered' %}
+                                    <form method="post" action="{% url 'inventory:supplier_order_receive' pk=o.pk %}" class="inline ml-2">{% csrf_token %}
+                                        <button class="text-xs text-green-600 hover:text-green-700">Receive</button>
+                                    </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" class="px-4 py-8 text-center text-gray-400 text-sm">No orders yet</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                <h3 class="text-sm font-semibold text-gray-900 mb-3">Contact Info</h3>
+                <div class="space-y-2 text-sm">
+                    <div><span class="text-gray-500">Phone:</span> <span class="text-gray-900">{{ supplier.phone|default:"-" }}</span></div>
+                    <div><span class="text-gray-500">Email:</span> <span class="text-gray-900">{{ supplier.email|default:"-" }}</span></div>
+                    <div><span class="text-gray-500">City:</span> <span class="text-gray-900">{{ supplier.city|default:"-" }}</span></div>
+                    <div><span class="text-gray-500">Website:</span> <span class="text-gray-900">{{ supplier.website|default:"-" }}</span></div>
+                </div>
+            </div>
+
+            {% if supplier.notes %}
+            <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                <h3 class="text-sm font-semibold text-gray-900 mb-3">Notes</h3>
+                <p class="text-sm text-gray-600">{{ supplier.notes }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

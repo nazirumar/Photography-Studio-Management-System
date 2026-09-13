@@ -50,3 +50,58 @@ class StockTransaction(BaseModel):
 
     def __str__(self):
         return f"{self.item.name} - {self.transaction_type} - {self.quantity}"
+
+
+class Supplier(BaseModel):
+    """Supplier/vendor for inventory items."""
+    studio = models.ForeignKey("studios.Studio", on_delete=models.CASCADE, related_name="suppliers")
+    name = models.CharField(max_length=200)
+    contact_person = models.CharField(max_length=200, blank=True)
+    phone = models.CharField(max_length=20, blank=True)
+    email = models.EmailField(blank=True)
+    address = models.TextField(blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    website = models.URLField(blank=True)
+    notes = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["name"]
+        unique_together = [("studio", "name")]
+
+    def __str__(self):
+        return self.name
+
+
+class SupplierOrder(BaseModel):
+    """Orders placed with suppliers."""
+    class Status(models.TextChoices):
+        PENDING = "pending", "Pending"
+        ORDERED = "ordered", "Ordered"
+        DELIVERED = "delivered", "Delivered"
+        CANCELLED = "cancelled", "Cancelled"
+
+    studio = models.ForeignKey("studios.Studio", on_delete=models.CASCADE, related_name="supplier_orders")
+    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, related_name="orders")
+    order_number = models.CharField(max_length=50)
+    item_name = models.CharField(max_length=200)
+    quantity = models.PositiveIntegerField()
+    unit_cost = models.DecimalField(max_digits=14, decimal_places=2)
+    total_cost = models.DecimalField(max_digits=14, decimal_places=2)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING, db_index=True)
+    expected_delivery = models.DateField(null=True, blank=True)
+    delivered_at = models.DateTimeField(null=True, blank=True)
+    inventory_item = models.ForeignKey(
+        InventoryItem, on_delete=models.SET_NULL, null=True, blank=True, related_name="supplier_orders"
+    )
+    notes = models.TextField(blank=True)
+    ordered_by = models.ForeignKey(
+        "accounts.User", on_delete=models.SET_NULL, null=True, related_name="supplier_orders"
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+        unique_together = [("studio", "order_number")]
+
+    def __str__(self):
+        return f"{self.order_number} - {self.item_name}"

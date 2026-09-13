@@ -31,3 +31,30 @@ class Notification(BaseModel):
 
     def __str__(self):
         return f"{self.title} - {self.user}"
+
+
+class SMSDeliveryLog(BaseModel):
+    """Track SMS delivery status from Termii."""
+    class Status(models.TextChoices):
+        PENDING = "pending", "Pending"
+        SENT = "sent", "Sent"
+        DELIVERED = "delivered", "Delivered"
+        FAILED = "failed", "Failed"
+
+    studio = models.ForeignKey("studios.Studio", on_delete=models.CASCADE, related_name="sms_logs")
+    phone = models.CharField(max_length=20)
+    message = models.TextField()
+    termii_message_id = models.CharField(max_length=100, blank=True)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING, db_index=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    delivered_at = models.DateTimeField(null=True, blank=True)
+    error_message = models.TextField(blank=True)
+    sent_by = models.ForeignKey(
+        "accounts.User", on_delete=models.SET_NULL, null=True, blank=True, related_name="sms_logs"
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"SMS to {self.phone} - {self.status}"

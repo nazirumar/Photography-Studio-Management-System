@@ -42,6 +42,38 @@ Production-ready photography studio management system built with Django. Designe
 - **Separate Auth** — ClientUser model (distinct from staff)
 - **Dashboard** — Booking status, invoices, gallery links
 - **WebSocket** — Real-time booking, payment, gallery notifications
+- **Online Booking Request** — Public form at `/bookings/request/`, auto-creates lead
+- **Survey/Feedback** — Post-shoot NPS survey at `/feedback/<uuid>/`
+
+### Revenue & Payments
+- **Invoice Payment Links** — Paystack checkout URLs on invoices at `/finance/<uuid>/pay/`
+- **Paystack Webhook** — Auto-confirms online payments at `/finance/paystack/webhook/`
+- **Automated Payment Reminders** — Celery Beat daily tasks: 7-day, 3-day, overdue (7/14/30 days)
+
+### Staff & Operations
+- **Staff Scheduling** — Weekly availability calendar at `/staff/schedule/`
+- **Booking Staff Assignment** — Assign photographers to bookings at `/staff/assign/<booking_pk>/`
+- **Contract Templates** — Generate contracts with digital signatures at `/contracts/`
+- **iCal Calendar Sync** — Export bookings to Google Calendar at `/bookings/ical/`
+
+### Marketing & Communications
+- **Bulk SMS/Email/WhatsApp** — Client segment messaging at `/notifications/bulk/`
+- **SMS Delivery Tracking** — Termii delivery status dashboard at `/notifications/sms-status/`
+- **Online Booking Form** — Public self-service at `/bookings/request/`
+
+### Business Intelligence
+- **Revenue Forecasting** — ML-lite projections at `/reports/forecast/`
+- **NPS Tracking** — Client satisfaction scores at `/feedback/`
+
+### Inventory & Supply Chain
+- **Supplier Management** — Vendor profiles at `/inventory/suppliers/`
+- **Supplier Orders** — Order tracking with auto-inventory updates
+- **Purchase Orders** — Create and receive orders from suppliers
+
+### Progressive Web App
+- **PWA Support** — Installable mobile app experience
+- **Service Worker** — Offline caching for static assets
+- **Push Notifications** — Browser push notifications for updates
 
 ### DevOps & Infrastructure
 - **Docker Compose** — web, postgres, redis, celery, celery-beat
@@ -138,6 +170,9 @@ studioflow/
 │   ├── audit/           # Audit trail
 │   ├── dashboard/       # Main dashboard
 │   ├── portal/          # Client portal (separate auth)
+│   ├── staff/           # Staff scheduling & assignments
+│   ├── contracts/       # Booking contracts & signatures
+│   ├── feedback/        # Client surveys & NPS
 │   ├── ai_fde/          # AI Film & Digital Expert
 │   ├── api/             # REST API
 │   └── core/            # Shared models, utilities, template tags
@@ -158,18 +193,31 @@ studioflow/
 | `/packages/` | Service packages |
 | `/bookings/` | Booking list + detail |
 | `/bookings/kanban/` | Kanban drag-and-drop pipeline |
+| `/bookings/request/` | **Public booking request form** |
+| `/bookings/requests/` | Staff: review booking requests |
+| `/bookings/ical/` | **iCal export all bookings** |
 | `/calendar/` | Visual calendar |
 | `/projects/` | Project tracking |
 | `/gallery/` | Photo galleries |
 | `/finance/` | Invoices & payments |
+| `/finance/<uuid>/pay/` | **Online payment (Paystack)** |
+| `/finance/paystack/webhook/` | **Paystack webhook** |
 | `/expenses/` | Expense tracking |
 | `/inventory/` | Stock management |
+| `/inventory/suppliers/` | **Supplier management** |
 | `/equipment/` | Equipment tracking |
 | `/equipment/maintenance/` | Maintenance logs |
 | `/printing/` | Print jobs |
 | `/printing/prices/` | Studio-specific price lists |
 | `/notifications/` | Alert center |
+| `/notifications/bulk/` | **Bulk SMS/Email/WhatsApp** |
+| `/notifications/sms-status/` | **SMS delivery dashboard** |
+| `/staff/schedule/` | **Staff availability schedule** |
+| `/contracts/` | **Booking contracts** |
+| `/feedback/` | **Client surveys & NPS** |
+| `/feedback/<uuid>/` | **Public survey form** |
 | `/reports/` | Business reports |
+| `/reports/forecast/` | **Revenue forecasting** |
 | `/audit/` | Audit trail |
 | `/portal/` | Client portal |
 | `/ai-fde/` | AI assistant chat |

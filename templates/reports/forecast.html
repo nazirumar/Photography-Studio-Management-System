@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Revenue Forecast - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Revenue Forecast</h1>
+        <p class="text-gray-500 mt-1">Projections based on historical data</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl border border-gray-200 p-4">
+            <div class="text-sm text-gray-500">Avg Monthly Revenue</div>
+            <div class="text-2xl font-bold text-gray-900">&#8358;{{ forecast.avg_monthly|floatformat:0 }}</div>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-4">
+            <div class="text-sm text-gray-500">Growth Rate</div>
+            <div class="text-2xl font-bold {% if forecast.growth_rate > 0 %}text-green-600{% elif forecast.growth_rate < 0 %}text-red-600{% else %}text-gray-600{% endif %}">{{ forecast.growth_rate }}%</div>
+        </div>
+        <div class="bg-white rounded-xl border border-gray-200 p-4">
+            <div class="text-sm text-gray-500">Next Month Projected</div>
+            <div class="text-2xl font-bold text-brand-600">{% if forecast.forecast %}&#8358;{{ forecast.forecast.0.projected|floatformat:0 }}{% else %}-{% endif %}</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl border border-gray-200 p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Historical Revenue</h2>
+            <div class="space-y-2">
+                {% for m in forecast.monthly_revenue %}
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-gray-500 w-16">{{ m.month }}</span>
+                    <div class="flex-1 bg-gray-100 rounded-full h-5 overflow-hidden">
+                        {% widthratio m.revenue forecast.avg_monthly 100 as pct %}
+                        <div class="bg-brand-500 h-5 rounded-full" style="width: {% widthratio m.revenue forecast.avg_monthly 100 %}%; min-width: 4px;"></div>
+                    </div>
+                    <span class="text-xs font-medium text-gray-900 w-24 text-right">&#8358;{{ m.revenue|floatformat:0 }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-gray-200 p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Forecast (Next 6 Months)</h2>
+            <div class="space-y-2">
+                {% for f in forecast.forecast %}
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-gray-500 w-16">{{ f.month }}</span>
+                    <div class="flex-1">
+                        <div class="bg-brand-100 rounded-full h-5 overflow-hidden">
+                            {% widthratio f.projected forecast.avg_monthly 100 as pct %}
+                            <div class="bg-brand-400 h-5 rounded-full" style="width: {% widthratio f.projected forecast.avg_monthly 100 %}%; min-width: 4px;"></div>
+                        </div>
+                    </div>
+                    <span class="text-xs font-medium text-gray-900 w-24 text-right">&#8358;{{ f.projected|floatformat:0 }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {% if forecast.package_stats %}
+    <div class="bg-white rounded-2xl border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Top Packages by Revenue</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gray-100">
+                        <th class="text-left px-4 py-2 text-xs font-medium text-gray-500 uppercase">Package</th>
+                        <th class="text-left px-4 py-2 text-xs font-medium text-gray-500 uppercase">Revenue</th>
+                        <th class="text-left px-4 py-2 text-xs font-medium text-gray-500 uppercase">Bookings</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for p in forecast.package_stats %}
+                    <tr>
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ p.booking__package__name }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">&#8358;{{ p.total_revenue|floatformat:0 }}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">{{ p.count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

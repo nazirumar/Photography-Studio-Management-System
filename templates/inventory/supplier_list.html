@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Suppliers - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Suppliers</h1>
+            <p class="text-gray-500 mt-1">Manage vendors and procurement</p>
+        </div>
+        <a href="{% url 'inventory:supplier_create' %}" class="bg-brand-600 text-white px-4 py-2 rounded-xl hover:bg-brand-700 text-sm font-medium">Add Supplier</a>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gray-100">
+                        <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Name</th>
+                        <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Contact</th>
+                        <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Phone</th>
+                        <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">City</th>
+                        <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for s in suppliers %}
+                    <tr class="hover:bg-gray-50 cursor-pointer" onclick="location.href='{% url 'inventory:supplier_detail' pk=s.pk %}'">
+                        <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ s.name }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ s.contact_person|default:"-" }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ s.phone|default:"-" }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ s.city|default:"-" }}</td>
+                        <td class="px-6 py-4">
+                            {% if s.is_active %}
+                            <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Active</span>
+                            {% else %}
+                            <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">Inactive</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="px-6 py-12 text-center text-gray-400 text-sm">No suppliers added yet</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

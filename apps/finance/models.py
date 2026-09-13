@@ -93,3 +93,28 @@ class Payment(BaseModel):
 
     def __str__(self):
         return f"{self.reference} - {self.amount}"
+
+
+class PaymentReminder(BaseModel):
+    """Track payment reminder sent for invoices."""
+    class ReminderType(models.TextChoices):
+        SEVEN_DAY = "seven_day", "7 Days Before"
+        THREE_DAY = "three_day", "3 Days Before"
+        DUE_DATE = "due_date", "On Due Date"
+        OVERDUE_7 = "overdue_7", "7 Days Overdue"
+        OVERDUE_14 = "overdue_14", "14 Days Overdue"
+        OVERDUE_30 = "overdue_30", "30 Days Overdue"
+
+    studio = models.ForeignKey("studios.Studio", on_delete=models.CASCADE, related_name="payment_reminders")
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name="reminders")
+    reminder_type = models.CharField(max_length=20, choices=ReminderType.choices)
+    sent_via = models.CharField(max_length=20, choices=[("email", "Email"), ("sms", "SMS"), ("both", "Both")])
+    sent_at = models.DateTimeField(auto_now_add=True)
+    error_message = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ["-sent_at"]
+        unique_together = [("invoice", "reminder_type")]
+
+    def __str__(self):
+        return f"{self.invoice.invoice_number} - {self.reminder_type}"

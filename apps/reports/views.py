@@ -84,3 +84,12 @@ def gallery_report(request):
     studio = get_user_studio(request.user)
     report = get_gallery_report(studio)
     return render(request, "reports/gallery.html", report)
+
+
+@login_required
+def revenue_forecast(request):
+    """Revenue forecasting dashboard."""
+    studio = get_user_studio(request.user)
+    from apps.reports.forecast_service import get_revenue_forecast
+    forecast_data = get_revenue_forecast(studio)
+    return render(request, "reports/forecast.html", {"forecast": forecast_data})

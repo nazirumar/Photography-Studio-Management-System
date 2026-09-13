@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay Invoice - StudioFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full mx-4">
+        <div class="bg-white rounded-2xl border border-gray-200 p-8 text-center">
+            <h1 class="text-xl font-bold text-gray-900 mb-2">Invoice {{ invoice.invoice_number }}</h1>
+            <p class="text-gray-500 text-sm mb-6">Amount Due: <span class="text-lg font-bold text-gray-900">&#8358;{{ invoice.balance|floatformat:2 }}</span></p>
+
+            {% if payment_result %}
+            <a href="{{ payment_result.authorization_url }}" class="block w-full bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-all font-medium text-sm">
+                Pay with Paystack
+            </a>
+            {% else %}
+            <p class="text-red-600 text-sm">Online payment is not available. Please contact the studio directly.</p>
+            {% endif %}
+
+            <p class="text-gray-400 text-xs mt-6">Secure payment powered by Paystack</p>
+        </div>
+    </div>
+</body>
+</html>

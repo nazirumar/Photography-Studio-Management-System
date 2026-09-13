@@ -1,11 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 
 from apps.accounts.services import get_user_studio
 from apps.clients.models import Client
-
-from .sms_service import SMSService
+from apps.notifications.models import SMSDeliveryLog
+from apps.notifications.sms_service import SMSService
 
 
 @login_required
@@ -67,3 +68,36 @@ def send_bulk_sms(request):
         return redirect("sms:send")
     clients = Client.objects.filter(studio=studio, status="active")
     return render(request, "notifications/send_sms.html", {"clients": clients, "bulk": True, "sms_configured": sms.is_configured})
+
+
+@login_required
+def sms_dashboard(request):
+    """View SMS delivery status dashboard."""
+    studio = get_user_studio(request.user)
+    queryset = SMSDeliveryLog.objects.filter(studio=studio)
+
+    status_filter = request.GET.get("status", "")
+    if status_filter:
+        queryset = queryset.filter(status=status_filter)
+
+    paginator = Paginator(queryset, 20)
+    page = request.GET.get("page")
+    logs = paginator.get_page(page)
+
+    total = SMSDeliveryLog.objects.filter(studio=studio).count()
+    delivered = SMSDeliveryLog.objects.filter(studio=studio, status="delivered").count()
+    failed = SMSDeliveryLog.objects.filter(studio=studio, status="failed").count()
+    pending = SMSDeliveryLog.objects.filter(studio=studio, status__in=["pending", "sent"]).count()
+
+    sms = SMSService()
+
+    return render(request, "notifications/sms_dashboard.html", {
+        "logs": logs,
+        "status_filter": status_filter,
+        "status_choices": SMSDeliveryLog.Status.choices,
+        "total": total,
+        "delivered": delivered,
+        "failed": failed,
+        "pending": pending,
+        "sms_configured": sms.is_configured,
+    })

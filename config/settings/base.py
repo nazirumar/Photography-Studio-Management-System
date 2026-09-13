@@ -51,6 +51,9 @@ INSTALLED_APPS = [
     "apps.api",
     "apps.payments",
     "apps.ai_fde",
+    "apps.staff",
+    "apps.contracts",
+    "apps.feedback",
     "channels",
 ]
 
@@ -227,6 +230,18 @@ CELERY_BEAT_SCHEDULE = {
     "booking-reminders": {
         "task": "apps.core.tasks.send_booking_reminders",
         "schedule": crontab(hour=7, minute=0),  # 7 AM daily
+    },
+    "payment-reminders": {
+        "task": "apps.notifications.tasks.send_payment_reminders",
+        "schedule": crontab(hour=8, minute=0),  # 8 AM daily
+    },
+    "upcoming-payment-reminders": {
+        "task": "apps.notifications.tasks.send_upcoming_payment_reminders",
+        "schedule": crontab(hour=8, minute=30),  # 8:30 AM daily
+    },
+    "sms-delivery-check": {
+        "task": "apps.notifications.tasks.check_sms_delivery_status",
+        "schedule": crontab(hour="*/2", minute=0),  # Every 2 hours
     },
 }
 

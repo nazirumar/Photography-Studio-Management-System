@@ -13,4 +13,5 @@ urlpatterns = [
     path("leads/", views.lead_report, name="leads"),
     path("packages/", views.package_report, name="packages"),
     path("gallery/", views.gallery_report, name="gallery"),
+    path("forecast/", views.revenue_forecast, name="forecast"),
 ]

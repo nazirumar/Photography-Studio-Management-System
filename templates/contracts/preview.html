@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract {{ contract.contract_number }} - {{ contract.studio.name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print { .no-print { display: none !important; } body { background: white; } }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="no-print fixed top-0 left-0 right-0 bg-white border-b border-gray-200 p-4 flex justify-center gap-4 z-50">
+        <button onclick="window.print()" class="bg-brand-600 text-white px-6 py-2 rounded-xl hover:bg-brand-700 text-sm font-medium">Print Contract</button>
+        <a href="{% url 'contracts:detail' pk=contract.pk %}" class="px-6 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium">Back to Contract</a>
+    </div>
+
+    <div class="max-w-3xl mx-auto py-20 px-8">
+        <div class="text-center mb-10">
+            <h1 class="text-2xl font-bold text-gray-900">{{ contract.title }}</h1>
+            <p class="text-gray-500 mt-1">{{ contract.contract_number }}</p>
+        </div>
+
+        <div class="mb-8 text-sm text-gray-700">
+            <p><strong>Client:</strong> {{ contract.booking.client }}</p>
+            <p><strong>Event:</strong> {{ contract.booking.event_type|default:"Photography Services" }}</p>
+            <p><strong>Date:</strong> {{ contract.booking.date }}</p>
+            <p><strong>Total Amount:</strong> &#8358;{{ contract.total_amount|floatformat:2 }}</p>
+            <p><strong>Deposit Required:</strong> &#8358;{{ contract.deposit_amount|floatformat:2 }}</p>
+        </div>
+
+        <div class="prose prose-sm max-w-none mb-10 text-sm text-gray-700 whitespace-pre-wrap">{{ contract.terms }}</div>
+
+        <div class="grid grid-cols-2 gap-8 mt-16">
+            <div>
+                <div class="border-t border-gray-400 pt-2">
+                    <p class="text-sm font-medium text-gray-900">Client Signature</p>
+                    <p class="text-xs text-gray-500">{{ contract.booking.client }}</p>
+                    <p class="text-xs text-gray-500">Date: {% if contract.client_signed_at %}{{ contract.client_signed_at|date:"d M Y" }}{% else %}_______________{% endif %}</p>
+                </div>
+            </div>
+            <div>
+                <div class="border-t border-gray-400 pt-2">
+                    <p class="text-sm font-medium text-gray-900">Studio Representative</p>
+                    <p class="text-xs text-gray-500">{{ contract.studio.name }}</p>
+                    <p class="text-xs text-gray-500">Date: {% if contract.studio_signed_at %}{{ contract.studio_signed_at|date:"d M Y" }}{% else %}_______________{% endif %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

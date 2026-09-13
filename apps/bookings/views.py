@@ -183,3 +183,29 @@ def booking_kanban_move(request, pk):
         return render(request, "bookings/kanban_card.html", {"booking": booking})
 
     return JsonResponse({"ok": True, "status": new_status})
+
+
+@login_required
+def booking_ical_export(request):
+    """Export all bookings as iCal file."""
+    from django.http import HttpResponse
+    from apps.bookings.calendar_service import generate_studio_calendar
+    studio = get_user_studio(request.user)
+    bookings = Booking.objects.filter(studio=studio, status__in=["confirmed", "in_progress"])
+    ical_data = generate_studio_calendar(bookings)
+    response = HttpResponse(ical_data, content_type="text/calendar; charset=utf-8")
+    response["Content-Disposition"] = f'attachment; filename="studioflow-bookings.ics"'
+    return response
+
+
+@login_required
+def booking_ical_single(request, pk):
+    """Export a single booking as iCal file."""
+    from django.http import HttpResponse
+    from apps.bookings.calendar_service import generate_booking_ical
+    studio = get_user_studio(request.user)
+    booking = get_object_or_404(Booking, pk=pk, studio=studio)
+    ical_data = generate_booking_ical(booking)
+    response = HttpResponse(ical_data, content_type="text/calendar; charset=utf-8")
+    response["Content-Disposition"] = f'attachment; filename="{booking.reference}.ics"'
+    return response
