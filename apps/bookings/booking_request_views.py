@@ -77,7 +77,9 @@ def booking_request_form(request):
 def booking_request_list(request):
     """Staff view of all booking requests."""
     studio = get_user_studio(request.user)
-    queryset = BookingRequest.objects.filter(studio=studio)
+    queryset = BookingRequest.objects.filter(
+        studio=studio
+    ).select_related("package", "reviewed_by", "converted_booking")
 
     status = request.GET.get("status", "")
     if status:

@@ -34,7 +34,7 @@ def supplier_detail(request, pk):
     studio = get_user_studio(request.user)
     from apps.inventory.models import Supplier
     supplier = get_object_or_404(Supplier, pk=pk, studio=studio)
-    orders = supplier.orders.all()[:20]
+    orders = supplier.orders.select_related("inventory_item").all()[:20]
 
     return render(request, "inventory/supplier_detail.html", {
         "supplier": supplier,

@@ -58,7 +58,7 @@ def contract_list(request):
     from django.core.paginator import Paginator
     from django.db.models import Q
 
-    queryset = Contract.objects.filter(studio=studio).select_related("booking", "booking__client")
+    queryset = Contract.objects.filter(studio=studio).select_related("booking", "booking__client", "booking__package")
     status = request.GET.get("status", "")
     if status:
         queryset = queryset.filter(status=status)

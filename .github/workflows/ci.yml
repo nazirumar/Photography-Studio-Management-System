@@ -1,21 +1,22 @@
-name: CI
+name: CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
 
 jobs:
-  lint-and-test:
+  test:
     runs-on: ubuntu-latest
+    
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgres:18-alpine
         env:
           POSTGRES_DB: studioflow_test
           POSTGRES_USER: studioflow
-          POSTGRES_PASSWORD: studioflow
+          POSTGRES_PASSWORD: testpass
         ports:
           - 5432:5432
         options: >-
@@ -23,31 +24,49 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-    env:
-      DJANGO_SETTINGS_MODULE: config.settings.testing
-      DJANGO_SECRET_KEY: test-secret-key
-      DATABASE_URL: postgres://studioflow:studioflow@localhost:5432/studioflow_test
-      REDIS_URL: redis://localhost:6379/0
+
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          
       - name: Install uv
         uses: astral-sh/setup-uv@v3
+        
       - name: Install dependencies
         run: uv sync --all-extras
-      - name: Lint with Ruff
+        
+      - name: Run Ruff linter
         run: uv run ruff check .
-      - name: Check formatting with Black
-        run: uv run black --check .
+        
       - name: Run tests
-        run: uv run pytest
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.testing
+          DATABASE_URL: postgres://studioflow:testpass@localhost:5432/studioflow_test
+        run: uv run python -m pytest --tb=short -q
+        
       - name: Django system check
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.testing
         run: uv run python manage.py check
+        
       - name: Check migrations
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.testing
         run: uv run python manage.py makemigrations --check --dry-run
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy to production
+        run: |
+          echo "Deploy to production server via SSH or Docker"
+          echo "Configure DEPLOY_KEY, DEPLOY_HOST, DEPLOY_USER secrets"

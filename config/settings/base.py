@@ -65,6 +65,10 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "apps.core.security_middleware.SecurityHeadersMiddleware",
+    "apps.core.security_middleware.RateLimitMiddleware",
+    "apps.core.security_middleware.InputSanitizationMiddleware",
+    "apps.core.tenant_middleware.MultiTenantMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -270,12 +274,34 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Security settings
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = "DENY"
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_AGE = 3600  # 1 hour
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Rate limiting
+RATE_LIMIT_ENABLED = True
+
+# File upload limits
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+
+# Logging configuration
+LOG_DIR = BASE_DIR / "logs"
+LOG_DIR.mkdir(exist_ok=True)
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
-            "format": "{levelname} {asctime} {module} {message}",
+            "format": "[{asctime}] {levelname} {name} {message}",
             "style": "{",
         },
         "simple": {
@@ -283,34 +309,67 @@ LOGGING = {
             "style": "{",
         },
     },
-    "filters": {
-        "require_debug_true": {
-            "()": "django.utils.log.RequireDebugTrue",
-        },
-    },
     "handlers": {
         "console": {
-            "level": "INFO",
-            "filters": ["require_debug_true"],
             "class": "logging.StreamHandler",
             "formatter": "simple",
         },
         "file": {
-            "level": "WARNING",
-            "class": "logging.FileHandler",
-            "filename": BASE_DIR / "logs" / "django.log",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": LOG_DIR / "studioflow.log",
+            "maxBytes": 10 * 1024 * 1024,  # 10MB
+            "backupCount": 5,
+            "formatter": "verbose",
+        },
+        "security_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": LOG_DIR / "security.log",
+            "maxBytes": 10 * 1024 * 1024,
+            "backupCount": 10,
+            "formatter": "verbose",
+        },
+        "error_file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": LOG_DIR / "errors.log",
+            "maxBytes": 10 * 1024 * 1024,
+            "backupCount": 5,
             "formatter": "verbose",
         },
     },
     "loggers": {
         "django": {
             "handlers": ["console", "file"],
+            "level": "INFO",
             "propagate": True,
         },
-        "apps": {
+        "django.request": {
+            "handlers": ["console", "error_file"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        "security": {
+            "handlers": ["console", "security_file"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        "finance": {
             "handlers": ["console", "file"],
-            "level": "DEBUG",
-            "propagate": True,
+            "level": "INFO",
+            "propagate": False,
         },
+        "notifications.sms": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "ai_fde": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+    "root": {
+        "handlers": ["console", "file"],
+        "level": "WARNING",
     },
 }

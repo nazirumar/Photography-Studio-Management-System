@@ -39,7 +39,7 @@ def survey_list(request):
     from apps.feedback.models import Survey
 
     studio = get_user_studio(request.user)
-    surveys = Survey.objects.filter(studio=studio).select_related("booking", "booking__client")
+    surveys = Survey.objects.filter(studio=studio).select_related("booking", "booking__client", "booking__package")
 
     nps = get_nps_score(studio)
 

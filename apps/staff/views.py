@@ -120,7 +120,7 @@ def staff_booking_assign(request, booking_pk):
     from django.contrib.auth import get_user_model
     User = get_user_model()
     staff_members = User.objects.filter(staff_profile__studio=studio)
-    assigned = StaffBooking.objects.filter(booking=booking).select_related("staff")
+    assigned = StaffBooking.objects.filter(booking=booking).select_related("staff", "staff__staff_profile")
 
     return render(request, "staff/assign.html", {
         "booking": booking,
