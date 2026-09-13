@@ -15,9 +15,6 @@ RUN apt-get update && apt-get install -y \
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 COPY pyproject.toml ./
-COPY manage.py ./
-COPY config/ ./config/
-
 RUN /root/.local/bin/uv sync --no-dev --all-extras
 
 COPY . .
