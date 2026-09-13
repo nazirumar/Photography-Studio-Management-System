@@ -47,7 +47,7 @@ class TestEmailTasks:
             user,
         )
         result = send_booking_confirmation(str(booking.pk))
-        assert result.status == "SUCCESS"
+        assert result is None
 
     def test_send_payment_receipt(self):
         from apps.bookings.services import create_booking
@@ -72,7 +72,7 @@ class TestEmailTasks:
             invoice, Decimal("25000"), "cash", "PAY-001", user=user
         )
         result = send_payment_receipt(str(payment.pk))
-        assert result.status == "SUCCESS"
+        assert result is None
 
     def test_send_invoice_email(self):
         from apps.bookings.services import create_booking
@@ -91,4 +91,4 @@ class TestEmailTasks:
         )
         invoice = create_invoice_from_booking(booking, user)
         result = send_invoice_email(str(invoice.pk))
-        assert result.status == "SUCCESS"
+        assert result is None

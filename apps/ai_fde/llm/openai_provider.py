@@ -70,7 +70,7 @@ class OpenAIProvider(BaseLLMProvider):
         resolved_model = model or getattr(settings, "AI_PRIMARY_MODEL", "qwen/qwen3.6-27b")
         openai_messages = _coerce_messages(messages)
 
-        kwargs.setdefault("max_tokens", 1024)
+        kwargs.setdefault("max_tokens", 512)
 
         try:
             client = self._get_client()
@@ -101,7 +101,7 @@ class OpenAIProvider(BaseLLMProvider):
         resolved_model = model or getattr(settings, "AI_PRIMARY_MODEL", "qwen/qwen3.6-27b")
         openai_messages = _coerce_messages(messages)
 
-        kwargs.setdefault("max_tokens", 1024)
+        kwargs.setdefault("max_tokens", 512)
 
         tool_definition = {
             "type": "function",

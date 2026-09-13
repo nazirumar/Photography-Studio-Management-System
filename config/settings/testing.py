@@ -16,3 +16,6 @@ DATABASES = {
 AUTH_PASSWORD_VALIDATORS = []
 
 EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = True
