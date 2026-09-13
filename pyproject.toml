@@ -38,6 +38,7 @@ dev = [
     "pytest",
     "pytest-django",
     "factory-boy",
+    "debug-toolbar",
 ]
 
 [tool.ruff]
