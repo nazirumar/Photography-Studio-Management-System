@@ -3,6 +3,31 @@ from django.db import models
 from apps.core.models import BaseModel
 
 
+class PrintPriceList(BaseModel):
+    """Studio-specific pricing for print products."""
+
+    class ProductType(models.TextChoices):
+        PRINT = "print", "Print"
+        FRAME = "frame", "Frame"
+        ALBUM = "album", "Album"
+
+    studio = models.ForeignKey("studios.Studio", on_delete=models.CASCADE, related_name="print_prices")
+    product_type = models.CharField(max_length=20, choices=ProductType.choices)
+    name = models.CharField(max_length=200)
+    size = models.CharField(max_length=50, blank=True)
+    paper_type = models.CharField(max_length=100, blank=True)
+    internal_cost = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    selling_price = models.DecimalField(max_digits=14, decimal_places=2)
+    is_active = models.BooleanField(default=True)
+    sort_order = models.IntegerField(default=0)
+
+    class Meta(BaseModel.Meta):
+        ordering = ["product_type", "sort_order", "name"]
+
+    def __str__(self):
+        return f"{self.name} ({self.get_product_type_display()}) - N{self.selling_price}"
+
+
 class PrintJob(BaseModel):
     class Status(models.TextChoices):
         PENDING = "pending", "Pending"

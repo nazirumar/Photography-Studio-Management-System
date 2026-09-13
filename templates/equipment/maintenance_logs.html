@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Maintenance History - {{ equipment.name }} - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Maintenance History</h1>
+            <p class="text-sm text-gray-500 mt-1">{{ equipment.asset_number }} &middot; {{ equipment.name }}</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'equipment:maintenance_add' equipment_pk=equipment.pk %}" class="inline-flex items-center gap-2 bg-brand-600 text-white px-4 py-2.5 rounded-xl hover:bg-brand-700 transition-all text-sm font-medium shadow-sm shadow-brand-600/25">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                Add Record
+            </a>
+            <a href="{% url 'equipment:detail' pk=equipment.pk %}" class="text-gray-500 px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-100 transition">Back</a>
+        </div>
+    </div>
+
+    {% if logs %}
+    <div class="space-y-3">
+        {% for log in logs %}
+        <div class="bg-white rounded-2xl border border-gray-200 p-5">
+            <div class="flex items-start justify-between gap-4">
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            {% if log.maintenance_type == 'repair' %}bg-red-100 text-red-700
+                            {% elif log.maintenance_type == 'scheduled' %}bg-green-100 text-green-700
+                            {% elif log.maintenance_type == 'inspection' %}bg-blue-100 text-blue-700
+                            {% else %}bg-gray-100 text-gray-700{% endif %}">
+                            {{ log.get_maintenance_type_display }}
+                        </span>
+                        <span class="text-sm font-semibold text-gray-900">{{ log.performed_date|date:"d M Y" }}</span>
+                    </div>
+                    <p class="text-sm text-gray-700 mt-2">{{ log.description }}</p>
+                    <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                        {% if log.vendor %}<span>Vendor: {{ log.vendor }}</span>{% endif %}
+                        {% if log.cost %}<span>Cost: &#8358;{{ log.cost|floatformat:2 }}</span>{% endif %}
+                        {% if log.next_due_date %}<span>Next due: {{ log.next_due_date|date:"d M Y" }}</span>{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% if log.notes %}
+            <div class="mt-3 pt-3 border-t border-gray-100">
+                <p class="text-xs text-gray-500">{{ log.notes }}</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white rounded-2xl border border-gray-200 p-12 text-center">
+        <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <p class="text-gray-600 font-medium">No maintenance records yet</p>
+        <p class="text-gray-400 text-sm mt-1">Log your first maintenance activity</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,5 +1,4 @@
 import contextlib
-import json
 from datetime import date
 
 from django.contrib import messages
@@ -180,7 +179,7 @@ def booking_kanban_move(request, pk):
         return JsonResponse({"error": str(e)}, status=400)
 
     if request.headers.get("HX-Request"):
-        booking.refresh_from_db()
+        booking = Booking.objects.select_related("client", "package", "photographer").get(pk=booking.pk)
         return render(request, "bookings/kanban_card.html", {"booking": booking})
 
     return JsonResponse({"ok": True, "status": new_status})

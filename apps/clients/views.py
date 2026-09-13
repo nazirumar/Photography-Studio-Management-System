@@ -67,7 +67,10 @@ def client_create(request):
 @login_required
 def client_detail(request, pk):
     studio = get_user_studio(request.user)
-    client = get_object_or_404(Client, pk=pk, studio=studio)
+    client = get_object_or_404(
+        Client.objects.prefetch_related("bookings", "projects", "invoices", "payments"),
+        pk=pk, studio=studio,
+    )
     balance = get_client_balance(client)
     lifetime_value = get_client_lifetime_value(client)
     bookings = client.bookings.all()[:10]

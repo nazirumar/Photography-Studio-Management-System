@@ -9,15 +9,16 @@ from django.utils import timezone
 from apps.accounts.models import StaffProfile
 from apps.bookings.models import Booking
 from apps.clients.models import Client
-from apps.equipment.models import Equipment
+from apps.equipment.models import Equipment, MaintenanceLog
 from apps.expenses.models import Expense, ExpenseCategory
+from apps.ai_fde.models.knowledge import KnowledgeDocument
 from apps.finance.models import Invoice, InvoiceItem, Payment
 from apps.gallery.models import Gallery, Photo
 from apps.inventory.models import InventoryItem, StockTransaction
 from apps.leads.models import Lead
 from apps.notifications.models import Notification
 from apps.packages.models import Package, ServiceCategory
-from apps.printing.models import AlbumOrder, FrameOrder, PrintJob
+from apps.printing.models import AlbumOrder, FrameOrder, PrintJob, PrintPriceList
 from apps.projects.models import Project, ProjectTask
 from apps.studios.models import Studio
 
@@ -139,6 +140,9 @@ class Command(BaseCommand):
         self._create_inventory(studio, owner)
         self._create_equipment(studio, users)
         self._create_printing(projects, clients)
+        self._create_print_prices(studio)
+        self._create_maintenance_logs(studio, users)
+        self._create_knowledge_base(studio, owner)
         self._create_notifications(users)
 
         self.stdout.write(self.style.SUCCESS("Database seeded successfully!"))
@@ -656,3 +660,203 @@ class Command(BaseCommand):
             )
             count += 1
         self.stdout.write(f"  Notifications: {count}")
+
+    def _create_print_prices(self, studio):
+        prices = [
+            ("print", "5x7 Glossy Print", "5x7", "Glossy", Decimal("500"), Decimal("1500"), 1),
+            ("print", "5x7 Matte Print", "5x7", "Matte", Decimal("500"), Decimal("1500"), 2),
+            ("print", "8x10 Glossy Print", "8x10", "Glossy", Decimal("800"), Decimal("2500"), 3),
+            ("print", "8x10 Matte Print", "8x10", "Matte", Decimal("800"), Decimal("2500"), 4),
+            ("print", "8x10 Fine Art Print", "8x10", "Fine Art", Decimal("1500"), Decimal("4500"), 5),
+            ("print", "11x14 Glossy Print", "11x14", "Glossy", Decimal("1500"), Decimal("4000"), 6),
+            ("print", "11x14 Matte Print", "11x14", "Matte", Decimal("1500"), Decimal("4000"), 7),
+            ("print", "16x20 Canvas Print", "16x20", "Canvas", Decimal("3000"), Decimal("8000"), 8),
+            ("print", "20x24 Canvas Print", "20x24", "Canvas", Decimal("5000"), Decimal("12000"), 9),
+            ("print", "A4 Glossy Photo", "A4", "Glossy", Decimal("300"), Decimal("1000"), 10),
+            ("frame", "8x10 Classic Black Frame", "8x10", "", Decimal("3500"), Decimal("8000"), 1),
+            ("frame", "8x10 White Frame", "8x10", "", Decimal("3500"), Decimal("8000"), 2),
+            ("frame", "12x16 Gold Frame", "12x16", "", Decimal("5500"), Decimal("12000"), 3),
+            ("frame", "12x16 Wood Frame", "12x16", "", Decimal("5000"), Decimal("11000"), 4),
+            ("frame", "16x20 Modern Frame", "16x20", "", Decimal("7500"), Decimal("18000"), 5),
+            ("frame", "20x24 Premium Frame", "20x24", "", Decimal("10000"), Decimal("25000"), 6),
+            ("album", "10x10 Leather Album (20 pages)", "10x10", "Leather", Decimal("25000"), Decimal("60000"), 1),
+            ("album", "10x10 Leather Album (30 pages)", "10x10", "Leather", Decimal("35000"), Decimal("85000"), 2),
+            ("album", "12x12 Linen Album (20 pages)", "12x12", "Linen", Decimal("30000"), Decimal("70000"), 3),
+            ("album", "12x12 Acrylic Album (30 pages)", "12x12", "Acrylic", Decimal("45000"), Decimal("110000"), 4),
+            ("album", "8x8 Parent Album (20 pages)", "8x8", "Linen", Decimal("15000"), Decimal("35000"), 5),
+        ]
+        count = 0
+        for ptype, name, size, paper, cost, price, order in prices:
+            PrintPriceList.objects.get_or_create(
+                studio=studio,
+                name=name,
+                defaults={
+                    "product_type": ptype,
+                    "size": size,
+                    "paper_type": paper,
+                    "internal_cost": cost,
+                    "selling_price": price,
+                    "sort_order": order,
+                },
+            )
+            count += 1
+        self.stdout.write(f"  Print Prices: {count}")
+
+    def _create_maintenance_logs(self, studio, users):
+        equipment_list = list(Equipment.objects.filter(studio=studio)[:6])
+        maintenance_data = [
+            ("scheduled", "Routine sensor cleaning and calibration", "Photo Kong", Decimal("15000")),
+            ("repair", "Replaced autofocus motor on lens", "Kingdom Photo", Decimal("45000")),
+            ("inspection", "Pre-shoot equipment inspection", "", Decimal("0")),
+            ("cleaning", "Deep cleaning of studio lighting equipment", "", Decimal("5000")),
+            ("calibration", "Monitor color calibration", "", Decimal("3000")),
+            ("scheduled", "Firmware update and performance check", "", Decimal("0")),
+        ]
+        count = 0
+        for i, eq in enumerate(equipment_list):
+            if i < len(maintenance_data):
+                mtype, desc, vendor, cost = maintenance_data[i]
+                MaintenanceLog.objects.get_or_create(
+                    equipment=eq,
+                    performed_date=_date(random.randint(5, 60)),
+                    defaults={
+                        "maintenance_type": mtype,
+                        "description": desc,
+                        "performed_by": random.choice(users[:3]),
+                        "vendor": vendor,
+                        "cost": cost,
+                        "next_due_date": _future_date(random.randint(30, 90)),
+                    },
+                )
+                count += 1
+        self.stdout.write(f"  Maintenance Logs: {count}")
+
+    def _create_knowledge_base(self, studio, creator):
+        docs = [
+            {
+                "title": "Studio Photography Guidelines",
+                "type": "guide",
+                "content": (
+                    "Photography Guidelines for Lagos Photography Studio\n\n"
+                    "1. Pre-Shoot Checklist\n"
+                    "- Confirm booking details with client 48 hours before\n"
+                    "- Check equipment batteries and memory cards\n"
+                    "- Verify lighting setup and backdrops\n"
+                    "- Review shot list with client\n\n"
+                    "2. During Shoot\n"
+                    "- Arrive 30 minutes early for setup\n"
+                    "- Take test shots and adjust white balance\n"
+                    "- Communicate clearly with client about poses\n"
+                    "- Capture a variety of angles and compositions\n\n"
+                    "3. Post-Shoot\n"
+                    "- Back up all files immediately\n"
+                    "- Import and organize in project folder\n"
+                    "- Begin culling within 24 hours\n"
+                    "- Edit selected photos within agreed timeline"
+                ),
+            },
+            {
+                "title": "Client Communication Policy",
+                "type": "policy",
+                "content": (
+                    "Client Communication Policy\n\n"
+                    "1. Response Time\n"
+                    "- All inquiries must be responded to within 2 hours during business hours\n"
+                    "- After hours inquiries get response by 9 AM next day\n"
+                    "- WhatsApp messages should be acknowledged immediately with estimated response time\n\n"
+                    "2. Booking Confirmation\n"
+                    "- Send booking confirmation within 24 hours of deposit\n"
+                    "- Include package details, date, time, and location\n"
+                    "- Send reminder 7 days before shoot\n"
+                    "- Send final reminder 48 hours before shoot\n\n"
+                    "3. Delivery\n"
+                    "- Provide regular updates during editing process\n"
+                    "- Deliver final images via online gallery\n"
+                    "- Follow up within 3 days of delivery for feedback"
+                ),
+            },
+            {
+                "title": "Frequently Asked Questions",
+                "type": "faq",
+                "content": (
+                    "Frequently Asked Questions\n\n"
+                    "Q: How long does it take to get our photos?\n"
+                    "A: Standard delivery is 2-3 weeks for edited digital images. Albums and prints take an additional 2-4 weeks.\n\n"
+                    "Q: Do you offer payment plans?\n"
+                    "A: Yes, we require a 50% deposit to book. The remaining balance can be paid in installments before the shoot date.\n\n"
+                    "Q: Can we bring extra outfits?\n"
+                    "A: Absolutely! Our packages include 1-3 outfit changes. Additional changes are welcome at no extra cost.\n\n"
+                    "Q: Do you travel for shoots?\n"
+                    "A: Yes, we offer on-location shoots within Lagos. Travel outside Lagos incurs transport and accommodation costs.\n\n"
+                    "Q: How many photos will we receive?\n"
+                    "A: Depending on your package, you'll receive 10-80 professionally edited digital images."
+                ),
+            },
+            {
+                "title": "Equipment Care Manual",
+                "type": "guide",
+                "content": (
+                    "Equipment Care and Maintenance\n\n"
+                    "Cameras:\n"
+                    "- Store in dry, temperature-controlled environment\n"
+                    "- Clean sensor every 3 months or after dusty shoots\n"
+                    "- Update firmware monthly\n"
+                    "- Never change lens in dusty or rainy conditions\n\n"
+                    "Lenses:\n"
+                    "- Always use lens caps when not in use\n"
+                    "- Clean with microfiber cloth only\n"
+                    "- Store vertically in padded bags\n"
+                    "- Check autofocus calibration quarterly\n\n"
+                    "Lighting:\n"
+                    "- Allow flash units to cool between intensive shoots\n"
+                    "- Replace batteries before each session\n"
+                    "- Check sync connections before shooting\n"
+                    "- Clean softbox surfaces monthly\n\n"
+                    "Backup:\n"
+                    "- Copy files to 2 separate drives immediately after each shoot\n"
+                    "- Keep one backup offsite or in cloud\n"
+                    "- Verify backup integrity monthly"
+                ),
+            },
+            {
+                "title": "Pricing and Packages Guide",
+                "type": "guide",
+                "content": (
+                    "StudioFlow Pricing Guide\n\n"
+                    "Wedding Packages:\n"
+                    "- Classic Wedding: N350,000 - Full day, 2 photographers\n"
+                    "- Premium Wedding: N650,000 - Full day, video highlights\n"
+                    "- Royal Wedding: N1,200,000 - Two-day, drone, album\n\n"
+                    "Portrait Packages:\n"
+                    "- Portrait Basic: N50,000 - 30 min, 10 images\n"
+                    "- Portrait Premium: N120,000 - 1 hour, 25 images, 1 print\n"
+                    "- Corporate Headshot: N30,000 - 15 min, 3 headshots\n\n"
+                    "Event Packages:\n"
+                    "- Birthday Bash: N150,000 - 3 hours, 50 images\n"
+                    "- Birthday Deluxe: N250,000 - 5 hours, photo booth\n\n"
+                    "Print Price Ranges:\n"
+                    "- 5x7 prints: N1,500 each\n"
+                    "- 8x10 prints: N2,500 each\n"
+                    "- Canvas prints: N8,000 - N12,000\n"
+                    "- Frames: N8,000 - N25,000\n"
+                    "- Albums: N35,000 - N120,000\n\n"
+                    "All prices are in Nigerian Naira (NGN) and include 7.5% VAT."
+                ),
+            },
+        ]
+        count = 0
+        for doc_data in docs:
+            KnowledgeDocument.objects.get_or_create(
+                studio=studio,
+                title=doc_data["title"],
+                defaults={
+                    "document_type": doc_data["type"],
+                    "content": doc_data["content"],
+                    "source": "Seed Data",
+                    "status": "ready",
+                    "chunk_count": 0,
+                    "created_by": creator,
+                },
+            )
+            count += 1
+        self.stdout.write(f"  Knowledge Base Documents: {count}")

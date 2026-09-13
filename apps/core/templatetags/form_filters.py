@@ -108,3 +108,11 @@ def dictkey(dictionary, key):
     if isinstance(dictionary, dict):
         return dictionary.get(key, {})
     return {}
+
+
+@register.filter(name="get")
+def dict_get(dictionary, key):
+    """Get a value from a dictionary by key."""
+    if isinstance(dictionary, dict):
+        return dictionary.get(key, "")
+    return ""

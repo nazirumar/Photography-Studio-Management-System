@@ -10,6 +10,7 @@ from django.utils import timezone
 from apps.accounts.services import get_user_studio
 from apps.bookings.models import Booking
 from apps.clients.models import Client
+from apps.equipment.models import Equipment
 from apps.expenses.models import Expense
 from apps.finance.models import Invoice, Payment
 from apps.leads.models import Lead
@@ -49,6 +50,13 @@ def dashboard_view(request):
     # Notifications
     unread = get_unread_count(request.user)
 
+    # Equipment maintenance
+    overdue_maintenance = Equipment.objects.filter(
+        studio=studio,
+        next_maintenance__lt=today,
+        status__in=["available", "in_use", "maintenance"],
+    ).count()
+
     # Chart data - last 6 months
     revenue_data = []
     bookings_data = []
@@ -84,6 +92,7 @@ def dashboard_view(request):
         "total_clients": total_clients,
         "new_leads": new_leads,
         "outstanding_invoices": outstanding,
+        "overdue_maintenance": overdue_maintenance,
         "unread_notifications": unread,
         "revenue_chart_data": json.dumps(revenue_data),
         "bookings_chart_data": json.dumps(bookings_data),

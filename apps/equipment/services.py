@@ -1,7 +1,7 @@
 from django.db import transaction
 
 from apps.audit.models import AuditLog
-from apps.equipment.models import Equipment
+from apps.equipment.models import Equipment, MaintenanceLog
 
 
 def create_equipment(studio, data, user):
@@ -91,3 +91,40 @@ def get_maintenance_due(studio):
         next_maintenance__lte=date.today(),
         status__in=[Equipment.Status.AVAILABLE, Equipment.Status.IN_USE],
     )
+
+
+def create_maintenance_log(equipment, data, user):
+    """Record a maintenance activity and update equipment next_maintenance."""
+    with transaction.atomic():
+        log = MaintenanceLog.objects.create(
+            equipment=equipment,
+            performed_by=user,
+            **data,
+        )
+        if data.get("next_due_date"):
+            equipment.next_maintenance = data["next_due_date"]
+            equipment.maintenance_date = data["performed_date"]
+            equipment.save(update_fields=["next_maintenance", "maintenance_date", "updated_at"])
+        AuditLog.objects.create(
+            user=user,
+            action="maintenance_recorded",
+            entity_type="MaintenanceLog",
+            entity_id=str(log.id),
+            after_values={
+                "equipment": equipment.name,
+                "type": log.maintenance_type,
+                "date": str(log.performed_date),
+            },
+        )
+        return log
+
+
+def get_overdue_maintenance(studio):
+    """Get equipment with overdue maintenance (past next_maintenance date)."""
+    from datetime import date
+
+    return Equipment.objects.filter(
+        studio=studio,
+        next_maintenance__lt=date.today(),
+        status__in=[Equipment.Status.AVAILABLE, Equipment.Status.IN_USE, Equipment.Status.MAINTENANCE],
+    ).select_related("assigned_to").order_by("next_maintenance")

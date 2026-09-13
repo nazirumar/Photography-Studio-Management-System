@@ -49,7 +49,7 @@ def invoice_list(request):
 def invoice_detail(request, pk):
     studio = get_user_studio(request.user)
     invoice = get_object_or_404(
-        Invoice.objects.select_related("client"), pk=pk, studio=studio
+        Invoice.objects.select_related("client", "booking"), pk=pk, studio=studio
     )
     items = invoice.items.all()
     payments = invoice.payments.all()[:10]

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Price List - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Print Price List</h1>
+            <p class="text-sm text-gray-500 mt-1">Configure pricing for prints, frames, and albums</p>
+        </div>
+        <a href="{% url 'printing:price_list_add' %}" class="inline-flex items-center gap-2 bg-brand-600 text-white px-5 py-2.5 rounded-xl hover:bg-brand-700 transition-all text-sm font-medium shadow-sm shadow-brand-600/25">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+            Add Price Item
+        </a>
+    </div>
+
+    {% for ptype, items in by_type.items %}
+    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">{{ ptype|title }}s</h2>
+        </div>
+        {% if items %}
+        <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                    <th class="text-left px-6 py-3">Name</th>
+                    <th class="text-left px-6 py-3">Size</th>
+                    <th class="text-left px-6 py-3">Paper/Type</th>
+                    <th class="text-right px-6 py-3">Cost</th>
+                    <th class="text-right px-6 py-3">Price</th>
+                    <th class="text-right px-6 py-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
+                    <td class="px-6 py-3 text-sm font-medium text-gray-900">{{ item.name }}</td>
+                    <td class="px-6 py-3 text-sm text-gray-600">{{ item.size|default:"-" }}</td>
+                    <td class="px-6 py-3 text-sm text-gray-600">{{ item.paper_type|default:"-" }}</td>
+                    <td class="px-6 py-3 text-sm text-gray-500 text-right">&#8358;{{ item.internal_cost|floatformat:2 }}</td>
+                    <td class="px-6 py-3 text-sm font-semibold text-gray-900 text-right">&#8358;{{ item.selling_price|floatformat:2 }}</td>
+                    <td class="px-6 py-3 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <a href="{% url 'printing:price_list_edit' pk=item.pk %}" class="text-xs text-brand-600 hover:text-brand-700">Edit</a>
+                            <form method="post" action="{% url 'printing:price_list_delete' pk=item.pk %}" onsubmit="return confirm('Delete this price item?')">
+                                {% csrf_token %}
+                                <button type="submit" class="text-xs text-red-500 hover:text-red-600">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        {% else %}
+        <div class="p-8 text-center text-gray-400 text-sm">No {{ ptype }} prices configured</div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

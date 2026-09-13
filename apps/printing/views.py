@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from apps.accounts.services import get_user_studio
 from apps.printing.forms import AlbumOrderForm, FrameOrderForm, PrintJobForm
-from apps.printing.models import AlbumOrder, FrameOrder, PrintJob
+from apps.printing.models import AlbumOrder, FrameOrder, PrintJob, PrintPriceList
 from apps.printing.services import (
     approve_album,
     create_album_order,
@@ -59,7 +59,7 @@ def print_job_create(request, project_pk):
 @login_required
 def print_job_status(request, pk):
     studio = get_user_studio(request.user)
-    print_job = get_object_or_404(PrintJob, pk=pk, project__studio=studio)
+    print_job = get_object_or_404(PrintJob.objects.select_related("project"), pk=pk, project__studio=studio)
     if request.method == "POST":
         new_status = request.POST.get("status")
         if new_status:
@@ -88,7 +88,7 @@ def frame_order_create(request, project_pk):
 @login_required
 def frame_order_status(request, pk):
     studio = get_user_studio(request.user)
-    frame = get_object_or_404(FrameOrder, pk=pk, project__studio=studio)
+    frame = get_object_or_404(FrameOrder.objects.select_related("project"), pk=pk, project__studio=studio)
     if request.method == "POST":
         new_status = request.POST.get("status")
         if new_status:
@@ -117,7 +117,7 @@ def album_order_create(request, project_pk):
 @login_required
 def album_order_status(request, pk):
     studio = get_user_studio(request.user)
-    album = get_object_or_404(AlbumOrder, pk=pk, project__studio=studio)
+    album = get_object_or_404(AlbumOrder.objects.select_related("project"), pk=pk, project__studio=studio)
     if request.method == "POST":
         new_status = request.POST.get("status")
         if new_status:
@@ -129,8 +129,68 @@ def album_order_status(request, pk):
 @login_required
 def album_approve(request, pk):
     studio = get_user_studio(request.user)
-    album = get_object_or_404(AlbumOrder, pk=pk, project__studio=studio)
+    album = get_object_or_404(AlbumOrder.objects.select_related("project"), pk=pk, project__studio=studio)
     if request.method == "POST":
         approve_album(album, user=request.user)
         messages.success(request, "Album approved and sent for production.")
     return redirect("projects:detail", pk=album.project.pk)
+
+
+@login_required
+def price_list(request):
+    studio = get_user_studio(request.user)
+    prices = PrintPriceList.objects.filter(studio=studio, is_active=True)
+    by_type = {
+        "print": prices.filter(product_type="print"),
+        "frame": prices.filter(product_type="frame"),
+        "album": prices.filter(product_type="album"),
+    }
+    return render(request, "printing/price_list.html", {"by_type": by_type})
+
+
+@login_required
+def price_list_add(request):
+    studio = get_user_studio(request.user)
+    if request.method == "POST":
+        price = PrintPriceList.objects.create(
+            studio=studio,
+            product_type=request.POST.get("product_type", "print"),
+            name=request.POST.get("name", ""),
+            size=request.POST.get("size", ""),
+            paper_type=request.POST.get("paper_type", ""),
+            internal_cost=request.POST.get("internal_cost", 0),
+            selling_price=request.POST.get("selling_price", 0),
+            sort_order=request.POST.get("sort_order", 0),
+        )
+        messages.success(request, f"Price item '{price.name}' added.")
+        return redirect("printing:price_list")
+    return render(request, "printing/price_list_form.html", {"title": "Add Price Item"})
+
+
+@login_required
+def price_list_edit(request, pk):
+    studio = get_user_studio(request.user)
+    price = get_object_or_404(PrintPriceList, pk=pk, studio=studio)
+    if request.method == "POST":
+        price.product_type = request.POST.get("product_type", price.product_type)
+        price.name = request.POST.get("name", price.name)
+        price.size = request.POST.get("size", price.size)
+        price.paper_type = request.POST.get("paper_type", price.paper_type)
+        price.internal_cost = request.POST.get("internal_cost", price.internal_cost)
+        price.selling_price = request.POST.get("selling_price", price.selling_price)
+        price.sort_order = request.POST.get("sort_order", price.sort_order)
+        price.save()
+        messages.success(request, f"Price item '{price.name}' updated.")
+        return redirect("printing:price_list")
+    return render(request, "printing/price_list_form.html", {"title": "Edit Price Item", "price": price})
+
+
+@login_required
+def price_list_delete(request, pk):
+    studio = get_user_studio(request.user)
+    price = get_object_or_404(PrintPriceList, pk=pk, studio=studio)
+    if request.method == "POST":
+        name = price.name
+        price.delete()
+        messages.success(request, f"Price item '{name}' deleted.")
+    return redirect("printing:price_list")

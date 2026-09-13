@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% load form_filters %}
+{% block title %}Bookings Pipeline - StudioFlow{% endblock %}
+{% block content %}
+<div class="space-y-6" x-data="kanbanApp()">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Booking Pipeline</h1>
+            <p class="text-sm text-gray-500 mt-1">Drag bookings between columns to update status</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'bookings:list' %}" class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-sm font-medium">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                List View
+            </a>
+            <a href="{% url 'bookings:create' %}" class="inline-flex items-center gap-2 bg-brand-600 text-white px-5 py-2.5 rounded-xl hover:bg-brand-700 transition-all text-sm font-medium shadow-sm shadow-brand-600/25">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                New Booking
+            </a>
+        </div>
+    </div>
+
+    <div class="flex gap-4 overflow-x-auto pb-4" style="min-height: 70vh;">
+        {% for col_status, bookings in columns.items %}
+        <div class="flex-shrink-0 w-80"
+             ondragover="event.preventDefault(); this.classList.add('ring-2', 'ring-brand-500', 'ring-opacity-50')"
+             ondragleave="this.classList.remove('ring-2', 'ring-brand-500', 'ring-opacity-50')"
+             ondrop="handleDrop(event, '{{ col_status }}'); this.classList.remove('ring-2', 'ring-brand-500', 'ring-opacity-50')">
+            <div class="bg-gray-50 rounded-2xl p-3 space-y-3">
+                <div class="flex items-center justify-between px-1">
+                    <div class="flex items-center gap-2">
+                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold
+                            {% if col_status == 'enquiry' %}bg-blue-100 text-blue-700
+                            {% elif col_status == 'tentative' %}bg-yellow-100 text-yellow-700
+                            {% elif col_status == 'awaiting_deposit' %}bg-orange-100 text-orange-700
+                            {% elif col_status == 'confirmed' %}bg-green-100 text-green-700
+                            {% elif col_status == 'in_progress' %}bg-purple-100 text-purple-700
+                            {% elif col_status == 'completed' %}bg-emerald-100 text-emerald-700
+                            {% else %}bg-gray-100 text-gray-700{% endif %}">
+                            {{ bookings|length }}
+                        </span>
+                        <h3 class="text-sm font-semibold text-gray-700">{{ labels|get:col_status }}</h3>
+                    </div>
+                </div>
+
+                <div class="space-y-2 min-h-[100px] kanban-column" data-status="{{ col_status }}">
+                    {% for booking in bookings %}
+                    {% include "bookings/kanban_card.html" with booking=booking %}
+                    {% endfor %}
+                    {% if not bookings %}
+                    <div class="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center text-gray-400 text-xs">
+                        Drop bookings here
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+function kanbanApp() {
+    return {
+        moveBooking(bookingId, newStatus) {
+            fetch(`/bookings/${bookingId}/kanban-move/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value || getCookie('csrftoken'),
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `status=${newStatus}`,
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    showToast(data.error, 'error');
+                } else {
+                    showToast('Status updated', 'success');
+                }
+            })
+            .catch(() => showToast('Failed to update status', 'error'));
+        }
+    };
+}
+
+function getCookie(name) {
+    const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+    return v ? v[2] : '';
+}
+
+function handleDrop(event, newStatus) {
+    event.preventDefault();
+    const bookingId = event.dataTransfer.getData('text/plain');
+    if (!bookingId) return;
+
+    const card = document.querySelector(`[data-booking-id="${bookingId}"]`);
+    const targetColumn = document.querySelector(`.kanban-column[data-status="${newStatus}"]`);
+
+    if (card && targetColumn) {
+        const placeholder = targetColumn.querySelector('.border-dashed');
+        if (placeholder) placeholder.remove();
+        targetColumn.appendChild(card);
+        card.classList.add('opacity-50');
+
+        fetch(`/bookings/${bookingId}/kanban-move/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `status=${newStatus}`,
+        })
+        .then(r => r.json())
+        .then(data => {
+            card.classList.remove('opacity-50');
+            if (data.error) {
+                showToast(data.error, 'error');
+                location.reload();
+            } else {
+                const countEls = document.querySelectorAll('.kanban-count');
+                location.reload();
+            }
+        })
+        .catch(() => {
+            card.classList.remove('opacity-50');
+            showToast('Failed to update status', 'error');
+            location.reload();
+        });
+    }
+}
+
+function handleDragStart(event, bookingId) {
+    event.dataTransfer.setData('text/plain', bookingId);
+    event.dataTransfer.effectAllowed = 'move';
+    event.target.classList.add('opacity-50');
+    setTimeout(() => event.target.classList.remove('opacity-50'), 0);
+}
+
+function showToast(message, type) {
+    if (window.Alpine && Alpine.store('toast')) {
+        Alpine.store('toast').add({ message, type });
+    }
+}
+</script>
+{% endblock %}

@@ -125,6 +125,11 @@ def update_booking_status(booking, new_status, user):
             before_values={"status": old_status},
             after_values={"status": new_status},
         )
+        try:
+            from apps.portal.notifications import notify_booking_update
+            notify_booking_update(booking)
+        except Exception:
+            pass
         return booking
 
 
@@ -160,4 +165,9 @@ def record_booking_payment(booking, amount, method, reference, user, payment_dat
             entity_id=str(booking.id),
             after_values={"amount": str(amount), "method": method, "reference": reference},
         )
+        try:
+            from apps.portal.notifications import notify_payment_confirmed
+            notify_payment_confirmed(payment)
+        except Exception:
+            pass
         return payment

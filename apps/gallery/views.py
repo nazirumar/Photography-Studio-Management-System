@@ -81,7 +81,7 @@ def photo_upload(request, project_pk, gallery_pk):
 def photo_toggle_selection(request, project_pk, gallery_pk, photo_pk):
     studio = get_user_studio(request.user)
     project = get_object_or_404(Project, pk=project_pk, studio=studio)
-    photo = get_object_or_404(Photo, pk=photo_pk, gallery__project=project)
+    photo = get_object_or_404(Photo.objects.select_related("gallery"), pk=photo_pk, gallery__project=project)
     if request.method == "POST":
         selected = request.POST.get("selected") == "true"
         client = project.client

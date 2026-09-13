@@ -64,7 +64,7 @@ def portal_booking_detail(request, pk):
     except Client.DoesNotExist:
         return render(request, "portal/no_access.html")
 
-    booking = get_object_or_404(Booking, pk=pk, client=client)
+    booking = get_object_or_404(Booking.objects.select_related("package"), pk=pk, client=client)
     from apps.projects.models import Project
     project = Project.objects.filter(booking=booking).first()
     return render(request, "portal/booking_detail.html", {

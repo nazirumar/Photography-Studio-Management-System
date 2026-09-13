@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} - StudioFlow{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">{{ title }}</h1>
+    </div>
+
+    <form method="post" class="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Product Type <span class="text-red-500">*</span></label>
+                <select name="product_type" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+                    <option value="print" {% if price.product_type == "print" %}selected{% endif %}>Print</option>
+                    <option value="frame" {% if price.product_type == "frame" %}selected{% endif %}>Frame</option>
+                    <option value="album" {% if price.product_type == "album" %}selected{% endif %}>Album</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Name <span class="text-red-500">*</span></label>
+                <input type="text" name="name" value="{{ price.name|default:'' }}" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20" placeholder="e.g. A4 Glossy Print">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Size</label>
+                <input type="text" name="size" value="{{ price.size|default:'' }}" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20" placeholder="e.g. A4, 12x16, 20x24">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Paper / Material Type</label>
+                <input type="text" name="paper_type" value="{{ price.paper_type|default:'' }}" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20" placeholder="e.g. Glossy, Matte, Canvas">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Internal Cost (NGN)</label>
+                <input type="number" name="internal_cost" value="{{ price.internal_cost|default:'0' }}" step="0.01" min="0" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Selling Price (NGN) <span class="text-red-500">*</span></label>
+                <input type="number" name="selling_price" value="{{ price.selling_price|default:'' }}" step="0.01" min="0" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Sort Order</label>
+                <input type="number" name="sort_order" value="{{ price.sort_order|default:'0' }}" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+            <button type="submit" class="bg-brand-600 text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-brand-700 transition-all shadow-sm shadow-brand-600/25">
+                Save
+            </button>
+            <a href="{% url 'printing:price_list' %}" class="text-gray-500 px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-100 transition">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -122,6 +122,7 @@ studioflow/
 | portal | Yes | Yes | Yes | Yes |
 | payments | Yes | Yes | Yes | Yes |
 | api | Yes | Yes | Yes | Yes |
+| ai_fde | Yes | Yes | Yes | Yes |
 
 ## URL Routes
 
@@ -133,13 +134,16 @@ studioflow/
 | leads | `/leads/` | leads |
 | packages | `/packages/` | packages |
 | bookings | `/bookings/` | bookings |
+| bookings kanban | `/bookings/kanban/` | bookings:kanban |
 | projects | `/projects/` | projects |
 | gallery | `/gallery/` | gallery |
 | finance | `/finance/` | finance |
 | expenses | `/expenses/` | expenses |
 | inventory | `/inventory/` | inventory |
 | equipment | `/equipment/` | equipment |
+| equipment maintenance | `/equipment/maintenance/` | equipment:maintenance |
 | printing | `/printing/` | printing |
+| print prices | `/printing/prices/` | printing:price_list |
 | notifications | `/notifications/` | notifications |
 | reports | `/reports/` | reports |
 | audit | `/audit/` | audit |
@@ -153,18 +157,10 @@ studioflow/
 | sms | `/sms/` | sms |
 | communications | `/communications/` | communications |
 | finance_pdf | `/finance/pdf/` | finance_pdf |
-| packages | `/packages/` | packages |
-| bookings | `/bookings/` | bookings |
-| projects | `/projects/` | projects |
-| gallery | `/gallery/` | gallery |
-| finance | `/finance/` | finance |
-| expenses | `/expenses/` | expenses |
-| inventory | `/inventory/` | inventory |
-| equipment | `/equipment/` | equipment |
-| printing | `/printing/` | printing |
-| notifications | `/notifications/` | notifications |
-| reports | `/reports/` | reports |
-| audit | `/audit/` | audit |
+| ai_fde | `/ai-fde/` | ai_fde |
+| websocket | `ws://host/ws/notifications/` | NotificationConsumer |
+| websocket | `ws://host/ws/dashboard/` | DashboardConsumer |
+| websocket | `ws://host/ws/portal/` | ClientPortalConsumer |
 
 ## Definition of Done
 

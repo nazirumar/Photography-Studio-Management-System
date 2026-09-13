@@ -5,11 +5,13 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from apps.accounts.services import get_user_studio
 from apps.equipment.forms import EquipmentForm, EquipmentSearchForm
-from apps.equipment.models import Equipment
+from apps.equipment.models import Equipment, MaintenanceLog
 from apps.equipment.services import (
     assign_equipment,
     create_equipment,
+    create_maintenance_log,
     get_maintenance_due,
+    get_overdue_maintenance,
     update_equipment,
     update_equipment_status,
 )
@@ -66,7 +68,7 @@ def equipment_detail(request, pk):
     equipment = get_object_or_404(
         Equipment.objects.select_related("assigned_to"), pk=pk, studio=studio
     )
-    return render(request, "equipment/detail.html", {"equipment": equipment})
+    return render(request, "equipment/detail.html", {"equipment": equipment, "status_choices": Equipment.Status.choices})
 
 
 @login_required
@@ -114,4 +116,34 @@ def equipment_assign(request, pk):
 def maintenance_due_list(request):
     studio = get_user_studio(request.user)
     items = get_maintenance_due(studio)
-    return render(request, "equipment/maintenance_due.html", {"items": items})
+    overdue = get_overdue_maintenance(studio)
+    return render(request, "equipment/maintenance_due.html", {"items": items, "overdue": overdue})
+
+
+@login_required
+def maintenance_log_add(request, equipment_pk):
+    studio = get_user_studio(request.user)
+    equipment = get_object_or_404(Equipment, pk=equipment_pk, studio=studio)
+    if request.method == "POST":
+        from django.utils import timezone
+        data = {
+            "maintenance_type": request.POST.get("maintenance_type", "scheduled"),
+            "description": request.POST.get("description", ""),
+            "vendor": request.POST.get("vendor", ""),
+            "cost": request.POST.get("cost", 0),
+            "performed_date": request.POST.get("performed_date", timezone.now().date()),
+            "next_due_date": request.POST.get("next_due_date") or None,
+            "notes": request.POST.get("notes", ""),
+        }
+        create_maintenance_log(equipment, data, user=request.user)
+        messages.success(request, "Maintenance log recorded.")
+        return redirect("equipment:detail", pk=equipment.pk)
+    return render(request, "equipment/maintenance_form.html", {"equipment": equipment})
+
+
+@login_required
+def maintenance_log_list(request, equipment_pk):
+    studio = get_user_studio(request.user)
+    equipment = get_object_or_404(Equipment, pk=equipment_pk, studio=studio)
+    logs = equipment.maintenance_logs.all()
+    return render(request, "equipment/maintenance_logs.html", {"equipment": equipment, "logs": logs})

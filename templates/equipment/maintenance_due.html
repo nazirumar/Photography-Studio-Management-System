@@ -1,33 +1,66 @@
 {% extends "base.html" %}
-{% block title %}Maintenance Due - StudioFlow{% endblock %}
+{% block title %}Maintenance Schedule - StudioFlow{% endblock %}
 {% block content %}
 <div class="space-y-6">
-    <h1 class="text-2xl font-bold text-gray-900">Maintenance Due</h1>
-    <div class="bg-white rounded-xl border border-gray-200">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50 text-left">
-                    <tr>
-                        <th class="px-5 py-3 font-medium text-gray-500">Asset #</th>
-                        <th class="px-5 py-3 font-medium text-gray-500">Name</th>
-                        <th class="px-5 py-3 font-medium text-gray-500">Next Maintenance</th>
-                        <th class="px-5 py-3 font-medium text-gray-500">Status</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    {% for eq in items %}
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-5 py-3 text-gray-900">{{ eq.asset_number }}</td>
-                        <td class="px-5 py-3"><a href="{% url 'equipment:detail' pk=eq.pk %}" class="text-indigo-600">{{ eq.name }}</a></td>
-                        <td class="px-5 py-3 text-red-600 font-medium">{{ eq.next_maintenance|date:"d M Y" }}</td>
-                        <td class="px-5 py-3">{{ eq.get_status_display }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr><td colspan="4" class="px-5 py-12 text-center text-gray-400">No maintenance due</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Maintenance Schedule</h1>
+            <p class="text-sm text-gray-500 mt-1">Equipment requiring maintenance attention</p>
+        </div>
+        <a href="{% url 'equipment:list' %}" class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-xl hover:bg-gray-50 transition-all text-sm font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+            Equipment List
+        </a>
+    </div>
+
+    {% if overdue %}
+    <div class="bg-red-50 border border-red-200 rounded-2xl p-5">
+        <div class="flex items-center gap-2 mb-3">
+            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <h2 class="text-lg font-bold text-red-800">Overdue Maintenance ({{ overdue|length }})</h2>
+        </div>
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {% for eq in overdue %}
+            <a href="{% url 'equipment:detail' pk=eq.pk %}" class="bg-white rounded-xl border border-red-200 p-4 hover:shadow-md transition-all block">
+                <div class="flex items-center justify-between">
+                    <p class="font-semibold text-gray-900 text-sm">{{ eq.name }}</p>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">Overdue</span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">{{ eq.asset_number }} &middot; {{ eq.brand }}</p>
+                <p class="text-xs text-red-600 font-medium mt-2">Due: {{ eq.next_maintenance|date:"d M Y" }}</p>
+            </a>
+            {% endfor %}
         </div>
     </div>
+    {% endif %}
+
+    {% if items %}
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+        <div class="flex items-center gap-2 mb-3">
+            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <h2 class="text-lg font-bold text-amber-800">Due for Maintenance ({{ items|length }})</h2>
+        </div>
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {% for eq in items %}
+            <a href="{% url 'equipment:detail' pk=eq.pk %}" class="bg-white rounded-xl border border-amber-200 p-4 hover:shadow-md transition-all block">
+                <div class="flex items-center justify-between">
+                    <p class="font-semibold text-gray-900 text-sm">{{ eq.name }}</p>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Due</span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">{{ eq.asset_number }} &middot; {{ eq.brand }}</p>
+                <p class="text-xs text-amber-600 font-medium mt-2">Due: {{ eq.next_maintenance|date:"d M Y" }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not overdue and not items %}
+    <div class="bg-white rounded-2xl border border-gray-200 p-12 text-center">
+        <svg class="w-12 h-12 text-green-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <p class="text-gray-600 font-medium">All equipment is up to date</p>
+        <p class="text-gray-400 text-sm mt-1">No maintenance required at this time</p>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

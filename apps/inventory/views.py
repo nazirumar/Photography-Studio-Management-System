@@ -66,7 +66,10 @@ def inventory_create(request):
 @login_required
 def inventory_detail(request, pk):
     studio = get_user_studio(request.user)
-    item = get_object_or_404(InventoryItem, pk=pk, studio=studio)
+    item = get_object_or_404(
+        InventoryItem.objects.prefetch_related("transactions__performed_by"),
+        pk=pk, studio=studio,
+    )
     transactions = item.transactions.all()[:20]
     transaction_form = StockTransactionForm()
     return render(request, "inventory/detail.html", {

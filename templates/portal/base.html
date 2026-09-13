@@ -6,8 +6,47 @@
     <title>{% block title %}Client Portal - StudioFlow{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+    function portalNotifications() {
+        return {
+            notifications: [],
+            unreadCount: 0,
+            ws: null,
+            connected: false,
+            init() {
+                this.connect();
+            },
+            connect() {
+                const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+                this.ws = new WebSocket(`${proto}//${location.host}/ws/portal/`);
+                this.ws.onopen = () => { this.connected = true; };
+                this.ws.onclose = () => {
+                    this.connected = false;
+                    setTimeout(() => this.connect(), 3000);
+                };
+                this.ws.onmessage = (e) => {
+                    const msg = JSON.parse(e.data);
+                    if (msg.type === 'unread_count') {
+                        this.unreadCount = msg.count;
+                    } else if (msg.type === 'notification' || msg.type === 'booking_update' || msg.type === 'payment_confirmed' || msg.type === 'gallery_ready') {
+                        this.notifications.unshift(msg.data || { title: msg.type, message: 'New update' });
+                        if (this.notifications.length > 20) this.notifications.pop();
+                        this.showToast(msg.data?.title || msg.type, msg.data?.message || 'New update');
+                    }
+                };
+            },
+            showToast(title, message) {
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-4 right-4 bg-white border border-gray-200 rounded-xl shadow-lg p-4 max-w-sm z-50 transition-all duration-300';
+                toast.innerHTML = `<p class="font-semibold text-sm text-gray-900">${title}</p><p class="text-xs text-gray-600 mt-1">${message}</p>`;
+                document.body.appendChild(toast);
+                setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 5000);
+            }
+        };
+    }
+    </script>
 </head>
-<body class="h-full bg-gray-50">
+<body class="h-full bg-gray-50" x-data="portalNotifications()">
     <nav class="bg-white border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
@@ -20,6 +59,9 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
+                    <span class="relative" x-show="unreadCount > 0">
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center" x-text="unreadCount"></span>
+                    </span>
                     <span class="text-sm text-gray-600">{{ user.get_full_name|default:user.email }}</span>
                     <a href="{% url 'accounts:logout' %}" class="text-sm text-red-600 hover:text-red-800">Sign out</a>
                 </div>
