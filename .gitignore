@@ -111,5 +111,15 @@ venv.bak/
 .DS_Store
 Thumbs.db
 
+# Node.js
+node_modules/
+package-lock.json
+
+# Logs
+logs/
+
+# SSL certs (generated)
+nginx/ssl/*.pem
+
 # Docker
 docker-compose.override.yml
