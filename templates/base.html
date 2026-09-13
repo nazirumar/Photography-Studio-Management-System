@@ -33,7 +33,161 @@
         ::-webkit-scrollbar { width:6px; height:6px; }
         ::-webkit-scrollbar-track { background:transparent; }
         ::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:3px; }
-        .dark body, .dark { --bg-primary: #0f172a; --bg-secondary: #1e293b; --bg-card: #1e293b; --text-primary: #f1f5f9; --text-secondary: #94a3b8; --border-color: #334155; }
+    /* Dark mode color system */
+    :root {
+        --c-white: #ffffff;
+        --c-gray-50: #f9fafb;
+        --c-gray-100: #f3f4f6;
+        --c-gray-200: #e5e7eb;
+        --c-gray-300: #d1d5db;
+        --c-gray-400: #9ca3af;
+        --c-gray-500: #6b7280;
+        --c-gray-600: #4b5563;
+        --c-gray-700: #374151;
+        --c-gray-800: #1f2937;
+        --c-gray-900: #111827;
+        --c-gray-950: #030712;
+        --c-indigo-50: #eef2ff;
+        --c-indigo-100: #e0e7ff;
+        --c-indigo-500: #6366f1;
+        --c-indigo-600: #4f46e5;
+        --c-indigo-700: #4338ca;
+        --c-brand-500: #6366f1;
+        --c-brand-600: #4f46e5;
+        --c-brand-700: #4338ca;
+        --c-brand-800: #3730a3;
+    }
+    .dark {
+        --c-white: #0f172a;
+        --c-gray-50: #1e293b;
+        --c-gray-100: #1e293b;
+        --c-gray-200: #334155;
+        --c-gray-300: #475569;
+        --c-gray-400: #64748b;
+        --c-gray-500: #94a3b8;
+        --c-gray-600: #cbd5e1;
+        --c-gray-700: #e2e8f0;
+        --c-gray-800: #f1f5f9;
+        --c-gray-900: #f8fafc;
+        --c-gray-950: #ffffff;
+        --c-indigo-50: #1e1b4b;
+        --c-indigo-100: #312e81;
+        --c-indigo-500: #818cf8;
+        --c-indigo-600: #a5b4fc;
+        --c-indigo-700: #c7d2fe;
+        --c-brand-500: #818cf8;
+        --c-brand-600: #a5b4fc;
+        --c-brand-700: #c7d2fe;
+        --c-brand-800: #e0e7ff;
+    }
+    /* Override Tailwind utility classes with CSS variables */
+    .bg-white { background-color: var(--c-white) !important; }
+    .bg-gray-50 { background-color: var(--c-gray-50) !important; }
+    .bg-gray-100 { background-color: var(--c-gray-100) !important; }
+    .bg-gray-200 { background-color: var(--c-gray-200) !important; }
+    .bg-gray-300 { background-color: var(--c-gray-300) !important; }
+    .bg-gray-800 { background-color: var(--c-gray-800) !important; }
+    .bg-gray-900 { background-color: var(--c-gray-900) !important; }
+    .bg-indigo-50 { background-color: var(--c-indigo-50) !important; }
+    .bg-indigo-100 { background-color: var(--c-indigo-100) !important; }
+    .bg-brand-50 { background-color: var(--c-indigo-50) !important; }
+    .bg-brand-100 { background-color: var(--c-indigo-100) !important; }
+    .text-gray-50 { color: var(--c-gray-50) !important; }
+    .text-gray-100 { color: var(--c-gray-100) !important; }
+    .text-gray-200 { color: var(--c-gray-200) !important; }
+    .text-gray-300 { color: var(--c-gray-300) !important; }
+    .text-gray-400 { color: var(--c-gray-400) !important; }
+    .text-gray-500 { color: var(--c-gray-500) !important; }
+    .text-gray-600 { color: var(--c-gray-600) !important; }
+    .text-gray-700 { color: var(--c-gray-700) !important; }
+    .text-gray-800 { color: var(--c-gray-800) !important; }
+    .text-gray-900 { color: var(--c-gray-900) !important; }
+    .text-gray-950 { color: var(--c-gray-950) !important; }
+    .text-indigo-500 { color: var(--c-indigo-500) !important; }
+    .text-indigo-600 { color: var(--c-indigo-600) !important; }
+    .text-indigo-700 { color: var(--c-indigo-700) !important; }
+    .text-brand-500 { color: var(--c-brand-500) !important; }
+    .text-brand-600 { color: var(--c-brand-600) !important; }
+    .text-brand-700 { color: var(--c-brand-700) !important; }
+    .text-brand-800 { color: var(--c-brand-800) !important; }
+    .border-gray-100 { border-color: var(--c-gray-100) !important; }
+    .border-gray-200 { border-color: var(--c-gray-200) !important; }
+    .border-gray-300 { border-color: var(--c-gray-300) !important; }
+    .divide-gray-100 > :not([hidden]) ~ :not([hidden]) { border-color: var(--c-gray-100) !important; }
+    .divide-gray-200 > :not([hidden]) ~ :not([hidden]) { border-color: var(--c-gray-200) !important; }
+    .ring-gray-300 { --tw-ring-color: var(--c-gray-300) !important; }
+    .placeholder-gray-400::placeholder { color: var(--c-gray-400) !important; }
+    /* Opacity variants */
+    .bg-white\/5 { background-color: rgba(255,255,255,0.05) !important; }
+    .bg-white\/10 { background-color: rgba(255,255,255,0.1) !important; }
+    .dark .bg-white\/5 { background-color: rgba(15,23,42,0.5) !important; }
+    .dark .bg-white\/10 { background-color: rgba(15,23,42,0.8) !important; }
+    .bg-white\/80 { background-color: var(--c-white) !important; }
+    .dark .bg-white\/80 { background-color: rgba(15,23,42,0.8) !important; }
+    .bg-gray-100\/50 { background-color: rgba(243,244,246,0.5) !important; }
+    .dark .bg-gray-100\/50 { background-color: rgba(30,41,59,0.5) !important; }
+    .bg-brand-500\/10 { background-color: rgba(99,102,241,0.1) !important; }
+    .dark .bg-brand-500\/10 { background-color: rgba(129,140,248,0.1) !important; }
+    /* Status badge backgrounds */
+    .bg-emerald-50, .bg-emerald-100, .bg-green-50, .bg-green-100 { background-color: var(--c-gray-100) !important; }
+    .bg-amber-50, .bg-amber-100, .bg-yellow-50, .bg-yellow-100 { background-color: var(--c-gray-100) !important; }
+    .bg-red-50, .bg-red-100 { background-color: var(--c-gray-100) !important; }
+    .bg-blue-50, .bg-blue-100 { background-color: var(--c-gray-100) !important; }
+    .bg-purple-50, .bg-purple-100 { background-color: var(--c-gray-100) !important; }
+    .bg-orange-100 { background-color: var(--c-gray-100) !important; }
+    .bg-indigo-100 { background-color: var(--c-gray-100) !important; }
+    /* Dark: keep badges slightly tinted */
+    .dark .bg-emerald-100, .dark .bg-green-100 { background-color: #064e3b !important; }
+    .dark .bg-amber-100, .dark .bg-yellow-100 { background-color: #78350f !important; }
+    .dark .bg-red-100 { background-color: #7f1d1d !important; }
+    .dark .bg-blue-100 { background-color: #1e3a8a !important; }
+    .dark .bg-purple-100 { background-color: #581c87 !important; }
+    .dark .bg-orange-100 { background-color: #7c2d12 !important; }
+    .dark .bg-indigo-100 { background-color: #312e81 !important; }
+    .dark .bg-emerald-200, .dark .bg-green-200 { background-color: #065f46 !important; }
+    .dark .bg-amber-200, .dark .bg-yellow-200 { background-color: #92400e !important; }
+    .dark .bg-red-200 { background-color: #991b1b !important; }
+    /* Status badge text colors */
+    .text-emerald-600, .text-emerald-700, .text-emerald-800 { color: #047857 !important; }
+    .text-green-600, .text-green-700, .text-green-800 { color: #047857 !important; }
+    .text-amber-600, .text-amber-700, .text-amber-800 { color: #b45309 !important; }
+    .text-yellow-600, .text-yellow-700, .text-yellow-800 { color: #a16207 !important; }
+    .text-red-600, .text-red-700, .text-red-800 { color: #dc2626 !important; }
+    .text-blue-600, .text-blue-700, .text-blue-800 { color: #1d4ed8 !important; }
+    .text-purple-600, .text-purple-700, .text-purple-800 { color: #7c3aed !important; }
+    .text-orange-700, .text-orange-800 { color: #c2410c !important; }
+    .dark .text-emerald-600, .dark .text-emerald-700, .dark .text-emerald-800 { color: #6ee7b7 !important; }
+    .dark .text-green-600, .dark .text-green-700, .dark .text-green-800 { color: #6ee7b7 !important; }
+    .dark .text-amber-600, .dark .text-amber-700, .dark .text-amber-800 { color: #fcd34d !important; }
+    .dark .text-yellow-600, .dark .text-yellow-700, .dark .text-yellow-800 { color: #fde047 !important; }
+    .dark .text-red-600, .dark .text-red-700, .dark .text-red-800 { color: #fca5a5 !important; }
+    .dark .text-blue-600, .dark .text-blue-700, .dark .text-blue-800 { color: #93c5fd !important; }
+    .dark .text-purple-600, .dark .text-purple-700, .dark .text-purple-800 { color: #c4b5fd !important; }
+    .dark .text-orange-700, .dark .text-orange-800 { color: #fdba74 !important; }
+    /* Hover states for colored backgrounds */
+    .hover\:bg-emerald-200:hover { background-color: #d1fae5 !important; }
+    .hover\:bg-red-200:hover { background-color: #fecaca !important; }
+    .hover\:bg-amber-200:hover { background-color: #fde68a !important; }
+    .hover\:bg-brand-700:hover { background-color: var(--c-brand-700) !important; }
+    /* Hover states */
+    .hover\:bg-gray-50:hover { background-color: var(--c-gray-50) !important; }
+    .hover\:bg-gray-100:hover { background-color: var(--c-gray-100) !important; }
+    .hover\:bg-white:hover { background-color: var(--c-white) !important; }
+    .hover\:text-gray-700:hover { color: var(--c-gray-700) !important; }
+    .hover\:text-gray-900:hover { color: var(--c-gray-900) !important; }
+    .focus\:ring-brand-500\/20:focus { --tw-ring-color: rgba(99,102,241,0.2) !important; }
+    .dark .focus\:ring-brand-500\/20:focus { --tw-ring-color: rgba(129,140,248,0.2) !important; }
+    /* Focus states */
+    .focus\:bg-white:focus { background-color: var(--c-white) !important; }
+    /* Card shadow in dark */
+    .dark .bg-white { box-shadow: 0 1px 3px 0 rgba(0,0,0,0.4), 0 1px 2px -1px rgba(0,0,0,0.3) !important; }
+    /* Dark mode scrollbar */
+    .dark ::-webkit-scrollbar-thumb { background: #475569; }
+    /* Dark mode shadow adjustments */
+    .dark .shadow-sm, .dark .shadow { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.3) !important; }
+    .dark .shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4), 0 2px 4px -2px rgba(0,0,0,0.3) !important; }
+    .dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -4px rgba(0,0,0,0.3) !important; }
+    .dark .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.4), 0 8px 10px -6px rgba(0,0,0,0.3) !important; }
     /* HTMX loading states */
     .sf-loading { position: relative; }
     .sf-loading::after {
@@ -54,7 +208,7 @@
     
     /* Sortable table headers */
     th[data-sort] { position: relative; }
-    th[data-sort]:hover { background: #f9fafb; }
+    th[data-sort]:hover { background: var(--c-gray-50); }
     
     /* Skeleton pulse */
     .sf-skeleton { animation: sfPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }

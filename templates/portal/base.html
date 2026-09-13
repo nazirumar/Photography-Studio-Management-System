@@ -6,6 +6,29 @@
     <title>{% block title %}Client Portal - StudioFlow{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        :root {
+            --c-white: #ffffff; --c-gray-50: #f9fafb; --c-gray-100: #f3f4f6; --c-gray-200: #e5e7eb;
+            --c-gray-300: #d1d5db; --c-gray-400: #9ca3af; --c-gray-500: #6b7280; --c-gray-600: #4b5563;
+            --c-gray-700: #374151; --c-gray-800: #1f2937; --c-gray-900: #111827;
+            --c-indigo-500: #6366f1; --c-indigo-600: #4f46e5;
+        }
+        .dark {
+            --c-white: #0f172a; --c-gray-50: #1e293b; --c-gray-100: #1e293b; --c-gray-200: #334155;
+            --c-gray-300: #475569; --c-gray-400: #64748b; --c-gray-500: #94a3b8; --c-gray-600: #cbd5e1;
+            --c-gray-700: #e2e8f0; --c-gray-800: #f1f5f9; --c-gray-900: #f8fafc;
+            --c-indigo-500: #818cf8; --c-indigo-600: #a5b4fc;
+        }
+        .bg-white { background-color: var(--c-white) !important; }
+        .bg-gray-50 { background-color: var(--c-gray-50) !important; }
+        .text-gray-500 { color: var(--c-gray-500) !important; }
+        .text-gray-600 { color: var(--c-gray-600) !important; }
+        .text-gray-900 { color: var(--c-gray-900) !important; }
+        .text-indigo-600 { color: var(--c-indigo-600) !important; }
+        .border-gray-200 { border-color: var(--c-gray-200) !important; }
+        .hover\:text-gray-900:hover { color: var(--c-gray-900) !important; }
+        .dark .bg-white { box-shadow: 0 1px 3px 0 rgba(0,0,0,0.4) !important; }
+    </style>
     <script>
     function portalNotifications() {
         return {
@@ -14,6 +37,8 @@
             ws: null,
             connected: false,
             init() {
+                const dark = localStorage.getItem('darkMode') === 'true';
+                if (dark) document.documentElement.classList.add('dark');
                 this.connect();
             },
             connect() {
@@ -63,6 +88,10 @@
                         <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center" x-text="unreadCount"></span>
                     </span>
                     <span class="text-sm text-gray-600">{{ user.get_full_name|default:user.email }}</span>
+                    <button @click="document.documentElement.classList.toggle('dark'); localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'))" class="p-2 rounded-lg hover:bg-gray-100 transition">
+                        <svg x-show="!document.documentElement.classList.contains('dark')" class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                        <svg x-show="document.documentElement.classList.contains('dark')" x-cloak class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    </button>
                     <a href="{% url 'accounts:logout' %}" class="text-sm text-red-600 hover:text-red-800">Sign out</a>
                 </div>
             </div>

@@ -5,9 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - StudioFlow</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        :root {
+            --c-white: #ffffff; --c-gray-50: #f9fafb; --c-gray-100: #f3f4f6; --c-gray-200: #e5e7eb;
+            --c-gray-300: #d1d5db; --c-gray-400: #9ca3af; --c-gray-500: #6b7280; --c-gray-600: #4b5563;
+            --c-gray-700: #374151; --c-gray-800: #1f2937; --c-gray-900: #111827; --c-gray-950: #030712;
+            --c-indigo-500: #6366f1; --c-brand-500: #6366f1; --c-brand-600: #4f46e5; --c-brand-700: #4338ca;
+        }
+        .dark {
+            --c-white: #0f172a; --c-gray-50: #1e293b; --c-gray-100: #1e293b; --c-gray-200: #334155;
+            --c-gray-300: #475569; --c-gray-400: #64748b; --c-gray-500: #94a3b8; --c-gray-600: #cbd5e1;
+            --c-gray-700: #e2e8f0; --c-gray-800: #f1f5f9; --c-gray-900: #f8fafc; --c-gray-950: #ffffff;
+            --c-indigo-500: #818cf8; --c-brand-500: #818cf8; --c-brand-600: #a5b4fc; --c-brand-700: #c7d2fe;
+        }
+        .bg-white { background-color: var(--c-white) !important; }
+        .bg-gray-50 { background-color: var(--c-gray-50) !important; }
+        .bg-gray-100 { background-color: var(--c-gray-100) !important; }
+        .text-gray-400 { color: var(--c-gray-400) !important; }
+        .text-gray-500 { color: var(--c-gray-500) !important; }
+        .text-gray-600 { color: var(--c-gray-600) !important; }
+        .text-gray-700 { color: var(--c-gray-700) !important; }
+        .text-gray-900 { color: var(--c-gray-900) !important; }
+        .text-brand-500 { color: var(--c-brand-500) !important; }
+        .text-brand-600 { color: var(--c-brand-600) !important; }
+        .border-gray-200 { border-color: var(--c-gray-200) !important; }
+        .border-gray-300 { border-color: var(--c-gray-300) !important; }
+        .focus\:bg-white:focus { background-color: var(--c-white) !important; }
+        .hover\:bg-brand-700:hover { background-color: var(--c-brand-700) !important; }
+        .hover\:text-brand-500:hover { color: var(--c-brand-500) !important; }
+        .dark .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.4), 0 8px 10px -6px rgba(0,0,0,0.3) !important; }
+        .placeholder-gray-400::placeholder { color: var(--c-gray-400) !important; }
+        .bg-brand-500 { background-color: var(--c-brand-500) !important; }
+        .bg-brand-600 { background-color: var(--c-brand-600) !important; }
+        .shadow-brand-600\/25 { box-shadow: 0 1px 2px 0 rgba(79,70,229,0.25) !important; }
+        .dark .shadow-brand-600\/25 { box-shadow: 0 1px 2px 0 rgba(129,140,248,0.25) !important; }
+    </style>
 </head>
-<body class="h-full bg-gray-50 flex items-center justify-center">
-    <div class="w-full max-w-md">
+<body class="h-full bg-gray-50 flex items-center justify-center" x-data x-init="
+    const dark = localStorage.getItem('darkMode') === 'true';
+    if (dark) document.documentElement.classList.add('dark');
+">
+    <!-- Dark mode toggle -->
+    <button @click="
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+    " class="fixed top-4 right-4 p-2.5 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition z-50">
+        <svg x-show="!document.documentElement.classList.contains('dark')" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        <svg x-show="document.documentElement.classList.contains('dark')" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+    </button>
+
+    <div class="w-full max-w-md px-4">
         <div class="bg-white rounded-2xl shadow-xl p-8">
             <div class="text-center mb-8">
                 <svg class="w-12 h-12 text-brand-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
