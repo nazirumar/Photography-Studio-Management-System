@@ -29,6 +29,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+ai = [
+    "fastembed",
+]
 dev = [
     "ruff",
     "black",
