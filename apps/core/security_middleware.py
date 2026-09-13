@@ -62,7 +62,15 @@ class SecurityHeadersMiddleware(MiddlewareMixin):
         
         if not settings.DEBUG:
             response["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-            response["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com;"
+            response["Content-Security-Policy"] = (
+                "default-src 'self'; "
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' "
+                "https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net; "
+                "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; "
+                "img-src 'self' data: https: blob:; "
+                "font-src 'self' https://fonts.gstatic.com; "
+                "connect-src 'self' ws: wss:;"
+            )
         
         return response
 

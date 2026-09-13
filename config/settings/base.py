@@ -92,30 +92,23 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 def _parse_database_url():
-    url = config("DATABASE_URL", default="studioflow")
-    if url.startswith("postgres://") or url.startswith("postgresql://"):
-        url = url.split("://", 1)[1]
-        user = url.split(":")[0] if ":" in url else "studioflow"
-        rest = url.split("@")[1] if "@" in url else url
-        password = url.split(":")[1].split("@")[0] if ":" in url and "@" in url else "studioflow"
-        host_port = rest.split("/")
-        host = host_port[0].split(":")[0] if ":" in host_port[0] else "localhost"
-        port = host_port[0].split(":")[1] if ":" in host_port[0] else "5432"
-        name = host_port[1] if len(host_port) > 1 else "studioflow"
-        return {"NAME": name, "USER": user, "PASSWORD": password, "HOST": host, "PORT": port}
-    return {"NAME": url, "USER": "studioflow", "PASSWORD": "studioflow", "HOST": "localhost", "PORT": "5432"}
+    import dj_database_url
+    url = config("DATABASE_URL", default="")
+    if url:
+        return dj_database_url.parse(url, conn_max_age=600)
+    return {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("POSTGRES_DB", default="studioflow"),
+        "USER": config("POSTGRES_USER", default="studioflow"),
+        "PASSWORD": config("POSTGRES_PASSWORD", default="studioflow"),
+        "HOST": config("POSTGRES_HOST", default="localhost"),
+        "PORT": config("POSTGRES_PORT", default="5432"),
+    }
 
 
 _db = _parse_database_url()
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": _db["NAME"],
-        "USER": _db["USER"],
-        "PASSWORD": _db["PASSWORD"],
-        "HOST": _db["HOST"],
-        "PORT": _db["PORT"],
-    }
+    "default": _db
 }
 
 AUTH_USER_MODEL = "accounts.User"
