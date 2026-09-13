@@ -151,3 +151,17 @@ def payment_list(request):
     studio = get_user_studio(request.user)
     payments = Payment.objects.filter(studio=studio).select_related("client", "invoice")[:50]
     return render(request, "finance/payment_list.html", {"payments": payments})
+
+
+@login_required
+def invoice_preview(request, pk):
+    """Print-ready invoice preview."""
+    studio = get_user_studio(request.user)
+    invoice = get_object_or_404(
+        Invoice.objects.select_related("client", "booking").prefetch_related("items"),
+        pk=pk, studio=studio,
+    )
+    return render(request, "finance/invoice_preview.html", {
+        "invoice": invoice,
+        "studio": studio,
+    })

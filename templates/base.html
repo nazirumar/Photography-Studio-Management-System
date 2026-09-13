@@ -34,10 +34,71 @@
         ::-webkit-scrollbar-track { background:transparent; }
         ::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:3px; }
         .dark body, .dark { --bg-primary: #0f172a; --bg-secondary: #1e293b; --bg-card: #1e293b; --text-primary: #f1f5f9; --text-secondary: #94a3b8; --border-color: #334155; }
+    /* HTMX loading states */
+    .sf-loading { position: relative; }
+    .sf-loading::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(255,255,255,0.5);
+        border-radius: inherit;
+        z-index: 10;
+    }
+    
+    /* Page transitions */
+    .sf-fade-in { animation: sfFadeIn 0.3s ease-out; }
+    @keyframes sfFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* Toast animations */
+    #toast-container > div { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    
+    /* Sortable table headers */
+    th[data-sort] { position: relative; }
+    th[data-sort]:hover { background: #f9fafb; }
+    
+    /* Skeleton pulse */
+    .sf-skeleton { animation: sfPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    @keyframes sfPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    
+    /* Mobile bottom nav */
+    .sf-bottom-nav { display: none; }
+    @media (max-width: 1023px) {
+        .sf-bottom-nav { display: flex; }
+        .sf-main-content { padding-bottom: 4rem; }
+    }
+    
+    /* Print styles */
+    @media print {
+        .no-print, .sf-sidebar, .sf-header, .sf-bottom-nav, nav, .toast { display: none !important; }
+        .sf-main-content { margin: 0 !important; padding: 0 !important; }
+        body { background: white !important; }
+        .bg-white, .bg-gray-50 { background: white !important; }
+        .border, .border-gray-200, .border-gray-300 { border-color: #e5e7eb !important; }
+        .rounded-2xl, .rounded-xl, .rounded-lg { border-radius: 0 !important; }
+        a[href]::after { content: " (" attr(href) ")"; font-size: 0.75rem; color: #6b7280; }
+        .no-print-url a[href]::after { content: none; }
+    }
+    
+    /* Empty state illustration animation */
+    .sf-empty-icon { animation: sfFloat 3s ease-in-out infinite; }
+    @keyframes sfFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    
+    /* Multi-step form */
+    .sf-step { display: none; }
+    .sf-step.active { display: block; animation: sfFadeIn 0.3s ease-out; }
+    .sf-step-indicator.active { background: #6366f1; color: white; }
+    .sf-step-indicator.completed { background: #22c55e; color: white; }
+    
+    /* Modal overlay */
+    .sf-modal-overlay { backdrop-filter: blur(4px); }
+    
+    /* Search autocomplete */
+    [data-search-autocomplete] { padding-right: 2.5rem; }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body class="h-full bg-gray-50 font-sans antialiased" x-data="{ sidebarOpen: true, mobileOpen: false }">
+    <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
     {% if user.is_authenticated %}
     <div class="flex h-full">
         <!-- Mobile overlay -->
@@ -86,10 +147,34 @@
             </main>
         </div>
     </div>
+    <!-- Mobile Bottom Navigation -->
+    <nav class="sf-bottom-nav fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 lg:hidden" aria-label="Mobile navigation">
+        <a href="/" class="flex flex-col items-center gap-0.5 py-2 px-3 text-gray-500 hover:text-brand-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span class="text-xs">Home</span>
+        </a>
+        <a href="/bookings/" class="flex flex-col items-center gap-0.5 py-2 px-3 text-gray-500 hover:text-brand-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span class="text-xs">Bookings</span>
+        </a>
+        <a href="/clients/" class="flex flex-col items-center gap-0.5 py-2 px-3 text-gray-500 hover:text-brand-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            <span class="text-xs">Clients</span>
+        </a>
+        <a href="/finance/" class="flex flex-col items-center gap-0.5 py-2 px-3 text-gray-500 hover:text-brand-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span class="text-xs">Finance</span>
+        </a>
+        <a href="/notifications/" class="flex flex-col items-center gap-0.5 py-2 px-3 text-gray-500 hover:text-brand-600 relative">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            <span class="text-xs">Alerts</span>
+        </a>
+    </nav>
     {% else %}
     {% block auth_content %}{% endblock %}
     {% endif %}
     {% block extra_js %}{% endblock %}
+    <script src="/static/js/studioflow.js"></script>
     <script>
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/static/sw.js').catch(() => {});
