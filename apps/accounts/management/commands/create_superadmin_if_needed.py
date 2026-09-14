@@ -16,16 +16,13 @@ class Command(BaseCommand):
         email = os.environ.get("ADMIN_EMAIL", "admin@studioflow.com")
         password = os.environ.get("ADMIN_PASSWORD", "admin123")
 
-        if not User.objects.exists():
-            studio = None
-            from apps.studios.models import Studio
+        studio = None
+        from apps.studios.models import Studio
 
-            studio, _ = Studio.objects.get_or_create(
-                name=os.environ.get("STUDIO_NAME", "Lagos Photography Studio"),
-                defaults={"slug": "lagos-studio", "phone": "+234-800-000-0000", "email": email},
-            )
-        else:
-            studio = None
+        studio, _ = Studio.objects.get_or_create(
+            name=os.environ.get("STUDIO_NAME", "Lagos Photography Studio"),
+            defaults={"phone": "+234-800-000-0000", "email": email},
+        )
 
         user = User.objects.create_superuser(
             email=email,
