@@ -23,4 +23,4 @@ RUN /root/.local/bin/uv run python manage.py collectstatic --noinput || true
 
 EXPOSE 8000
 
-CMD ["/root/.local/bin/uv", "run", "sh", "-c", "python manage.py migrate --noinput && python manage.py createcachetable && python manage.py create_superadmin_if_needed || true && daphne -b 0.0.0.0 -p 8000 config.asgi:application"]
+CMD ["/root/.local/bin/uv", "run", "sh", "-c", "python manage.py migrate --noinput 2>&1; python manage.py create_superadmin_if_needed 2>&1; python manage.py createcachetable 2>&1; daphne -b 0.0.0.0 -p 8000 config.asgi:application"]

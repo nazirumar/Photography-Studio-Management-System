@@ -96,13 +96,10 @@ def _parse_database_url():
     url = config("DATABASE_URL", default="")
     if url:
         return dj_database_url.parse(url, conn_max_age=600)
+    # Fallback to SQLite if no DATABASE_URL (development / unconfigured)
     return {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("POSTGRES_DB", default="studioflow"),
-        "USER": config("POSTGRES_USER", default="studioflow"),
-        "PASSWORD": config("POSTGRES_PASSWORD", default="studioflow"),
-        "HOST": config("POSTGRES_HOST", default="localhost"),
-        "PORT": config("POSTGRES_PORT", default="5432"),
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 
 
