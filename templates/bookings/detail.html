@@ -2,12 +2,12 @@
 {% block title %}{{ booking.reference }} - StudioFlow{% endblock %}
 {% block content %}
 <div class="space-y-6">
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h1 class="text-2xl font-bold text-gray-900">{{ booking.reference }}</h1>
             <p class="text-sm text-gray-500">{{ booking.title|default:booking.event_type|default:"Booking" }}</p>
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
             {% if booking.status != 'completed' and booking.status != 'cancelled' %}
             <form method="post" action="{% url 'bookings:status' pk=booking.pk %}" class="inline">
                 {% csrf_token %}

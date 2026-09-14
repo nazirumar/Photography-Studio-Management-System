@@ -71,8 +71,8 @@
                         </td>
                         <td class="px-6 py-4 text-gray-500 hidden lg:table-cell">{{ client.created_at|date:"M d, Y" }}</td>
                         <td class="px-6 py-4 text-right">
-                            <a href="{% url 'clients:detail' pk=client.pk %}" class="text-gray-400 hover:text-brand-600 transition">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            <a href="{% url 'clients:detail' pk=client.pk %}" class="inline-flex items-center justify-center p-2 min-h-[44px] min-w-[44px] rounded-lg text-gray-400 hover:text-brand-600 hover:bg-gray-100 transition">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                             </a>
                         </td>
                     </tr>
@@ -93,10 +93,10 @@
             <span class="text-gray-500">Page {{ clients.number }} of {{ clients.paginator.num_pages }}</span>
             <div class="flex gap-2">
                 {% if clients.has_previous %}
-                <a href="?page={{ clients.previous_page_number }}" class="px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-sm font-medium transition">Previous</a>
+                <a href="?page={{ clients.previous_page_number }}" class="px-4 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50 text-sm font-medium transition">Previous</a>
                 {% endif %}
                 {% if clients.has_next %}
-                <a href="?page={{ clients.next_page_number }}" class="px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-sm font-medium transition">Next</a>
+                <a href="?page={{ clients.next_page_number }}" class="px-4 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50 text-sm font-medium transition">Next</a>
                 {% endif %}
             </div>
         </div>

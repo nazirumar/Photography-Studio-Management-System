@@ -37,10 +37,10 @@
                 <thead class="bg-gray-50 text-left">
                     <tr>
                         <th class="px-5 py-3 font-medium text-gray-500">Invoice</th>
-                        <th class="px-5 py-3 font-medium text-gray-500">Client</th>
-                        <th class="px-5 py-3 font-medium text-gray-500">Date</th>
+                        <th class="px-5 py-3 font-medium text-gray-500 hidden sm:table-cell">Client</th>
+                        <th class="px-5 py-3 font-medium text-gray-500 hidden md:table-cell">Date</th>
                         <th class="px-5 py-3 font-medium text-gray-500">Total</th>
-                        <th class="px-5 py-3 font-medium text-gray-500">Balance</th>
+                        <th class="px-5 py-3 font-medium text-gray-500 hidden sm:table-cell">Balance</th>
                         <th class="px-5 py-3 font-medium text-gray-500">Status</th>
                     </tr>
                 </thead>
@@ -48,10 +48,10 @@
                     {% for inv in invoices %}
                     <tr class="hover:bg-gray-50">
                         <td class="px-5 py-3"><a href="{% url 'finance:invoice_detail' pk=inv.pk %}" class="text-indigo-600 hover:text-indigo-800 font-medium">{{ inv.invoice_number }}</a></td>
-                        <td class="px-5 py-3 text-gray-600">{{ inv.client }}</td>
-                        <td class="px-5 py-3 text-gray-600">{{ inv.issue_date|date:"d M Y" }}</td>
+                        <td class="px-5 py-3 text-gray-600 hidden sm:table-cell">{{ inv.client }}</td>
+                        <td class="px-5 py-3 text-gray-600 hidden md:table-cell">{{ inv.issue_date|date:"d M Y" }}</td>
                         <td class="px-5 py-3 text-gray-900 font-medium">N{{ inv.total|floatformat:2 }}</td>
-                        <td class="px-5 py-3 {% if inv.balance > 0 %}text-red-600 font-medium{% else %}text-gray-600{% endif %}">N{{ inv.balance|floatformat:2 }}</td>
+                        <td class="px-5 py-3 {% if inv.balance > 0 %}text-red-600 font-medium{% else %}text-gray-600{% endif %} hidden sm:table-cell">N{{ inv.balance|floatformat:2 }}</td>
                         <td class="px-5 py-3">
                             <span class="px-2 py-1 text-xs rounded-full {% if inv.status == 'paid' %}bg-green-100 text-green-700{% elif inv.status == 'partial' %}bg-yellow-100 text-yellow-700{% elif inv.status == 'overdue' %}bg-red-100 text-red-700{% else %}bg-gray-100 text-gray-500{% endif %}">
                                 {{ inv.get_status_display }}
