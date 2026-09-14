@@ -12,6 +12,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
+        ('ai_fde', '0000_enable_pgvector'),
         ('studios', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
