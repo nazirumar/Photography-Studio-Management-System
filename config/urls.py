@@ -42,6 +42,7 @@ urlpatterns = [
     path("staff/", include("apps.staff.urls")),
     path("contracts/", include("apps.contracts.urls")),
     path("feedback/", include("apps.feedback.urls")),
+    path("debug/login-test/", include("apps.core.debug_urls")),
 ]
 
 if settings.DEBUG:
